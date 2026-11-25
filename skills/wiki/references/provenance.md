@@ -2,13 +2,10 @@
 
 Keep ingestion state, source evidence, and claim assessment separate.
 
-Resolve the installed product root from the invoking skill's own location, not
-from the user-vault working directory:
+Use the pure-Rust `smart-vault` core (`--vault`, `SMART_VAULT_ROOT`, `MEMVAULT_ROOT`, or CWD discovery):
 
 ```bash
-PRODUCT_ROOT=/absolute/path/to/installed/claude-obsidian
-CORE="$PRODUCT_ROOT/scripts/claude-obsidian.py"
-test -f "$CORE"
+smart-vault doctor --vault VAULT
 ```
 
 ## Ledgers
@@ -50,14 +47,11 @@ Do not overload one ledger with all three jobs.
 
 ## Migration
 
-Run migration as a dry-run first:
+Run adoption/migration dry-run first:
 
 ```bash
-python3 "$CORE" migrate --vault VAULT \
-  --generated-at <ISO-UTC> --operation-id migrate-reviewed
-python3 "$CORE" migrate --vault VAULT \
-  --generated-at <ISO-UTC> --operation-id migrate-reviewed \
-  --approved-plan-sha256 <reviewed-sha256> --apply
+smart-vault adopt --vault VAULT
+smart-vault adopt --vault VAULT --apply
 ```
 
 Migration leaves `.raw/.manifest.json` byte-for-byte unchanged, creates missing

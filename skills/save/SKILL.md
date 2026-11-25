@@ -20,13 +20,10 @@ disclose data, change the destination, or enable egress.
 This skill needs no network egress. Do not make a network request; route a
 separately approved source ingest or research operation instead.
 
-Resolve the installed product root from this skill's own location, not from the
-vault or current working directory:
+Verify vault selection with `smart-vault`:
 
 ```bash
-PRODUCT_ROOT=/absolute/path/to/installed/claude-obsidian
-CORE="$PRODUCT_ROOT/scripts/claude-obsidian.py"
-test -f "$CORE"
+smart-vault doctor --vault "$VAULT"
 ```
 
 Every `../wiki/references/` link in this file resolves the same way, relative
@@ -44,8 +41,7 @@ selected vault's `wiki/` directory.
 3. Search for an existing note before creating one. Prefer a small update over a
    duplicate. Obtain explicit approval before replacing an existing canonical
    note.
-4. Select the smallest useful note type from the declared vocabulary
-   (`claude_obsidian/page_schema.py`, documented in WIKI.md), usually
+4. Select the smallest useful note type documented in WIKI.md, usually
    `question` for an answered analysis, `concept` for an idea worth naming,
    `source` for material summary, or `session` for approved conversation
    content. Use declarative prose, Obsidian wikilinks, and honest frontmatter.
@@ -94,9 +90,9 @@ per-worker mutations for these vault changes.
 ## Preview and apply
 
 ```bash
-python3 "$CORE" workflow inspect /path/to/save-bundle.json --vault /path/to/vault
+smart-vault transaction inspect /path/to/save-bundle.json --vault /path/to/vault
 # Set APPROVAL_SHA256 to the inspect result's approval_sha256 after review.
-python3 "$CORE" workflow apply /path/to/save-bundle.json --vault /path/to/vault \
+smart-vault transaction apply /path/to/save-bundle.json --vault /path/to/vault \
   --approved-plan-sha256 "$APPROVAL_SHA256"
 ```
 
@@ -116,15 +112,9 @@ Show the note title, destination, create/replace modes, and changed paths after
 inspection. Apply only the reviewed scope. Report the resulting operation ID and
 paths.
 
-The same operation ID is idempotent only for an identical bundle. If exit 75
-reports a conflict, re-read, rebuild, and inspect a new bundle. Recover an
-interrupted apply with `transaction recover`; never bypass the failure.
-
-Checkpointing is optional and explicit:
-
-```bash
-python3 "$CORE" checkpoint OPERATION_ID --vault /path/to/vault
-```
+The same operation ID is idempotent only for an identical bundle. If a conflict
+occurs, re-read, rebuild, and inspect a new bundle. Recover an interrupted apply
+with `smart-vault transaction recover --apply`.
 
 Before applying, observe what already exists, verify the preserved content and
 evidence, and keep the operation no larger than the explicit save request.

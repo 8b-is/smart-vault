@@ -187,10 +187,10 @@ Omit `color` entirely for the default (no border color, transparent label).
 
 ## Image Sizing Guidelines
 
-Calculate from actual image dimensions using PIL or `identify`:
+Calculate from actual image dimensions using `file` or ImageMagick `identify`:
 
 ```bash
-python3 -c "from PIL import Image; img=Image.open('path.png'); print(img.width, img.height)"
+file path.png
 # or
 identify -format '%w %h' path.png
 ```

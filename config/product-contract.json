@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "product": {
-    "id": "claude-obsidian",
-    "name": "claude-obsidian",
-    "promise": "Build and maintain a local-first, source-cited, compounding Obsidian knowledge base through portable Agent Skills.",
+    "id": "smart-vault",
+    "name": "smart-vault",
+    "promise": "Build and maintain a local-first, source-cited, compounding Obsidian knowledge base in pure Rust (#![no_std] CSR graph core + aarch64 NEON/ASM + SHA-256/codesign), wired into 8b-is/smart-tree, MemNet, and MemPalace for every AI agent host.",
     "non_promises": [
       "Automatic transcript capture",
       "Automatic remote-model or cloud enrichment",
@@ -16,10 +16,11 @@
   "supported_hosts": [
     {
       "id": "agent-skills-compatible",
-      "support_level": "compatible",
+      "support_level": "native",
       "implementation_paths": [
         "AGENTS.md",
-        "skills"
+        "skills",
+        "src/mcp.rs"
       ]
     },
     {
@@ -33,52 +34,67 @@
     },
     {
       "id": "codex-cli",
-      "support_level": "compatible",
+      "support_level": "native",
       "implementation_paths": [
         "AGENTS.md",
-        "skills"
+        "skills",
+        "src/multi_agent.rs"
       ]
     },
     {
       "id": "cursor",
-      "support_level": "compatible",
+      "support_level": "native",
       "implementation_paths": [
-        "scripts/setup-multi-agent.sh",
+        ".cursor/rules/smart-vault.mdc",
+        "src/multi_agent.rs",
         "skills"
       ]
     },
     {
       "id": "gemini-cli",
-      "support_level": "compatible",
+      "support_level": "native",
       "implementation_paths": [
-        "scripts/setup-multi-agent.sh",
+        "GEMINI.md",
+        "src/multi_agent.rs",
         "skills"
       ]
     },
     {
       "id": "opencode",
-      "support_level": "compatible",
+      "support_level": "native",
       "implementation_paths": [
         "AGENTS.md",
+        "src/multi_agent.rs",
         "skills"
       ]
     },
     {
       "id": "windsurf",
-      "support_level": "compatible",
+      "support_level": "native",
       "implementation_paths": [
-        "scripts/setup-multi-agent.sh",
+        ".windsurf/rules/smart-vault.md",
+        "src/multi_agent.rs",
+        "skills"
+      ]
+    },
+    {
+      "id": "zcode",
+      "support_level": "native",
+      "implementation_paths": [
+        "ZCODE.md",
+        "src/multi_agent.rs",
         "skills"
       ]
     }
   ],
   "installation_modes": [
     {
-      "id": "agent-skills-link",
+      "id": "cargo-binary-mcp",
       "host": "agent-skills-compatible",
       "implementation_paths": [
-        "scripts/setup-multi-agent.sh",
-        "skills"
+        "Cargo.toml",
+        "src/mcp.rs",
+        "src/multi_agent.rs"
       ]
     },
     {
@@ -94,49 +110,7 @@
       "host": "claude-code",
       "implementation_paths": [
         ".claude-plugin/plugin.json",
-        "claude_obsidian/release.py",
-        "config/public-marketplace.json",
-        "config/release-allowlist.json"
-      ]
-    },
-    {
-      "id": "codex-skills-link",
-      "host": "codex-cli",
-      "implementation_paths": [
-        "scripts/setup-multi-agent.sh",
-        "skills"
-      ]
-    },
-    {
-      "id": "cursor-workspace-skills-link",
-      "host": "cursor",
-      "implementation_paths": [
-        "scripts/setup-multi-agent.sh",
-        "skills"
-      ]
-    },
-    {
-      "id": "gemini-skills-link",
-      "host": "gemini-cli",
-      "implementation_paths": [
-        "scripts/setup-multi-agent.sh",
-        "skills"
-      ]
-    },
-    {
-      "id": "opencode-skills-link",
-      "host": "opencode",
-      "implementation_paths": [
-        "scripts/setup-multi-agent.sh",
-        "skills"
-      ]
-    },
-    {
-      "id": "windsurf-workspace-skills-link",
-      "host": "windsurf",
-      "implementation_paths": [
-        "scripts/setup-multi-agent.sh",
-        "skills"
+        "config/public-marketplace.json"
       ]
     }
   ],
@@ -151,119 +125,11 @@
     "destructive_repairs": "explicit_consent"
   },
   "compatibility": {
-    "minimum_python": "3.11",
+    "rust_edition": "2021",
     "vault_layout": "v1",
-    "legacy_scripts": "supported_through_v1",
-    "migration": "explicit_dry_run_first",
+    "smart_tree_integration": true,
+    "memnet_integration": true,
     "filesystem_fallback": true,
     "new_configuration_optional": true
-  },
-  "release_gates": [
-    {
-      "id": "host-compatibility",
-      "required": true,
-      "verification": {
-        "type": "manual",
-        "evidence": "Validate the clean extracted artifact with the current target host validator and record its version, output and exit status separately from isolated install/load/discovery tests. Identity validation failures remain blockers to promotion until the owner chooses and verifies a compatible migration. A public identity changes only with owner approval and a marketplace renames entry that migrates the former identity, with migration and rollback evidence recorded. Never silently waive a failed validator."
-      }
-    },
-    {
-      "id": "artifact-safety",
-      "required": true,
-      "verification": {
-        "type": "command",
-        "command": [
-          "{python}",
-          "tests/test_release.py"
-        ]
-      }
-    },
-    {
-      "id": "capability-verification",
-      "required": true,
-      "verification": {
-        "type": "command",
-        "command": [
-          "{python}",
-          "claude_obsidian/contracts.py",
-          "--repo-root",
-          ".",
-          "--verify"
-        ]
-      }
-    },
-    {
-      "id": "clean-hermetic-suite",
-      "required": true,
-      "verification": {
-        "type": "command",
-        "command": [
-          "make",
-          "test"
-        ]
-      }
-    },
-    {
-      "id": "deterministic-sample",
-      "required": true,
-      "verification": {
-        "type": "command",
-        "command": [
-          "{python}",
-          "tests/test_distribution_vaults.py"
-        ]
-      }
-    },
-    {
-      "id": "core-workflow-forward-tests",
-      "required": true,
-      "verification": {
-        "type": "manual",
-        "evidence": "Fresh-context Save, Ingest, and Query runs against the deterministic acceptance vault satisfy their skill invariants: selected content only, source fidelity and provenance, reviewed transaction scope, resolving citations or grounded refusal, and byte-for-byte read-only Query behavior. Record prompts, outputs, before/after hashes, host/model versions, and reviewer disposition."
-      }
-    },
-    {
-      "id": "evidence-review",
-      "required": true,
-      "verification": {
-        "type": "manual",
-        "evidence": "Release and comparison claims resolve through current evidence records; unsupported claims are removed or qualified."
-      }
-    },
-    {
-      "id": "fresh-context-review",
-      "required": true,
-      "verification": {
-        "type": "manual",
-        "evidence": "A read-only fresh-context verifier reports zero BLOCKER and zero HIGH findings at the candidate commit."
-      }
-    },
-    {
-      "id": "migration-and-uninstall",
-      "required": true,
-      "verification": {
-        "type": "manual",
-        "evidence": "Migration, rollback, and uninstall are verified from a clean environment and a representative legacy vault."
-      }
-    },
-    {
-      "id": "owner-promotion-approval",
-      "required": true,
-      "verification": {
-        "type": "manual",
-        "evidence": "The repository owner explicitly approves any public push, tag, issue mutation, or release."
-      }
-    },
-    {
-      "id": "transaction-recovery",
-      "required": true,
-      "verification": {
-        "type": "command",
-        "command": [
-          "{python}",
-          "tests/test_transaction.py"
-        ]
-      }
-    }
-  ]
+  }
 }

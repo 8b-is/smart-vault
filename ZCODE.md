@@ -1,30 +1,14 @@
-# claude-obsidian: ZCode instructions
+# smart-vault: ZCode instructions
 
-Read `AGENTS.md` as the canonical host-neutral contract. Skills live in
-`skills/<name>/SKILL.md` and the portable core lives in `claude_obsidian/`.
+Read [AGENTS.md](AGENTS.md) as the canonical host-neutral contract. Skills live in `skills/<name>/SKILL.md`, the `#![no_std]` core lives in `crates/smart-vault-core/`, and the pure-Rust runtime lives in `src/`.
 
-ZCode reads `AGENTS.md` at the workspace and user scope natively (per the
-ZCode Agent documentation, https://zcode.z.ai/en/docs/agents), so no mirrored
-rules file is needed. User-level skills are discovered at
-`~/.zcode/skills/<skill-name>/SKILL.md` (https://zcode.z.ai/en/docs/skill).
-Install skill discovery with:
+Install skill discovery for ZCode (`~/.zcode/skills/smart-vault`):
 
 ```bash
-bash scripts/setup-multi-agent.sh --host zcode
-bash scripts/setup-multi-agent.sh --host zcode --apply
+smart-vault setup-host --host zcode
+smart-vault setup-host --host zcode --apply
 ```
 
-The first command previews the links; the second applies that reviewed scope.
-Links land in `~/.zcode/skills/` (user-level), so every ZCode workspace can
-invoke the skills without per-project setup.
+Wire the agent-agnostic MCP server (`smart-vault mcp`) to use `vault_doctor`, `vault_lint`, `vault_query`, `vault_tree`, `vault_remember`, `mesh_*`, and `palace_*` tools natively.
 
-This repository is product source, not the default user vault. Create a
-separate vault with the dry-run-first `init` command or adopt an existing vault.
-Resolve that vault before reading `wiki/hot.md` or running a skill.
-
-All shared mutations use one inspected `claude-obsidian.transaction.v1` bundle.
-Parallel workers draft only. Do not use direct shared writes, automatic commits,
-or the deprecated per-file lock helper. Remote egress and destructive actions
-need explicit user consent.
-
-Public canonical: https://github.com/AgriciDaniel/claude-obsidian
+Made with `<3` from `8b.is-crew`.

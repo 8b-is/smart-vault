@@ -1,6 +1,59 @@
 # Attributions
 
-claude-obsidian is an original work. The following third-party patterns, tools, and creators informed its design.
+`smart-vault` (`8b-is/smart-vault`, made with `<3` from **8b.is-crew**) is a pure-Rust, agent-agnostic Obsidian knowledge engine evolved from `claude-obsidian` and wired into `8b-is/smart-tree`, `MemNet`, and `MemPalace`. The following upstream foundations, architectures, open-source crates, and contributors informed or power its design.
+
+---
+
+## 8b.is-crew · Smart Tree, MemNet & Pure-Rust `#![no_std]` Core
+
+**Authors:** 8b.is-crew (`8bit-wraith`, `Claude`, `Omni`, `peterlodri-sec`, and the 8b.is team)
+**Repositories:**
+- https://github.com/8b-is/smart-tree
+- https://github.com/peterlodri-sec/claude-obsidian
+
+**Use:** 100% pure-Rust `smart-vault` workspace (`crates/smart-vault-core/` `#![no_std]` kernel + `src/`), `aarch64` inline ASM & NEON SIMD byte kernels, CSR graph representation with iterative Tarjan SCC & PageRank hub scoring, `rayon` parallel BM25+ indexing & graph linting, `mimalloc` global allocator, macOS `codesign` + constant-time SHA-256 verification, SHA-256 approval-pinned transactions under `fs2` locking, stdio JSON-RPC 2.0 MCP server (15 tools), lifecycle hook integration, automated M1 global installer (`setup-global`), and native `st` + `st memnet` (`MEM|8` wave persistence, Q&A cache offloading, and peer folder sharing) integration.
+
+---
+
+## MemPalace
+
+**Architecture:** Verbatim spatial memory palace organized into Wings, Rooms, and Drawers backed by ChromaDB, HNSW vector indexing, and SQLite (`~/.config/mempalace/palace` / `~/.mempalace/palace`).
+**Integration in `smart-vault`:** Local CLI bridge (`smart-vault palace status|wake-up|search|mine|export|daemon`), hybrid query fusion (`smart-vault query --palace`), MCP tools (`palace_status`, `palace_wake_up`, `palace_search`, `palace_mine`), lifecycle hook forwarding (`smart-vault hook <event> --palace`), and `mempalace-mcp` / `mempalace-light-mcp` registration in `smart-vault setup-global`.
+
+`smart-vault` invokes locally installed `mempalace` executables as an external process boundary with graceful degradation when absent; no third-party MemPalace source code is bundled in this repository.
+
+---
+
+## Pure-Rust Ecosystem Crates
+
+`smart-vault` is compiled as a single pure-Rust binary (declared in [Cargo.toml](Cargo.toml)) built atop a zero-dependency `#![no_std]` kernel ([crates/smart-vault-core/Cargo.toml](crates/smart-vault-core/Cargo.toml)) and these open-source crates:
+
+| Crate | Role in `smart-vault` |
+|---|---|
+| `smart-vault-core` (`#![no_std]`) | Zero-allocation CSR graph, iterative Tarjan SCC, PageRank, `aarch64` NEON/ASM primitives (`ct_eq_bytes`, `ctz_u64`, `simd_contains_byte`, `simd_ascii_lowercase_in_place`), zero-alloc Markdown scanner, IEEE-754 BM25+ math, stack `TopK` |
+| `mimalloc` | Default high-throughput parallel allocator for `rayon` indexing, linting, and MCP serving |
+| `clap` | CLI argument, subcommand, and environment-variable parsing (`derive`, `env`) |
+| `rayon` | Data-parallel vault scanning, graph linting, and BM25+ inverted-index construction |
+| `memchr` | SIMD-accelerated byte scanning for Markdown inline-code and link parsing |
+| `serde` & `serde_json` | Deterministic JSON serialization for manifests, transaction journals, CLI reports, and MCP JSON-RPC 2.0 |
+| `sha2` & `hex` | SHA-256 transaction approval hashes, pre-image verification, `.raw/` content addressing, and binary `.sha256` verification |
+| `fs2` | Exclusive advisory filesystem locking over `.vault-meta/mutation.lock` |
+| `rustc-hash` | High-speed `FxHashMap` lookup tables in graph linting and BM25+ indexing/scoring |
+| `unicode-normalization` | Unicode NFD decomposition and combining-mark folding for multilingual BM25+ retrieval |
+| `walkdir` | Deterministic vault directory traversal |
+| `chrono` | UTC timestamps for journals, BM25+ index metadata, and vault templates |
+| `thiserror` | Structured, error-coded `MemVaultError` diagnostics |
+| `criterion` & `tempfile` | Criterion microbenchmarks ([benches/vault_bench.rs](benches/vault_bench.rs)) and hermetic integration tests ([tests/integration_tests.rs](tests/integration_tests.rs)) |
+
+---
+
+## Obsidian & `kepano/obsidian-skills`
+
+**Sources:**
+- https://obsidian.md
+- https://github.com/kepano/obsidian-skills
+
+**Use:** Design reference for Obsidian Flavored Markdown (`[[wikilinks]]`, embeds, callouts, block IDs), Obsidian Canvas, and Obsidian Bases syntax. No upstream code is copied; pinned reference reviews and intentional divergences are documented in [config/upstream-references.json](config/upstream-references.json) and [docs/upstream-references.md](docs/upstream-references.md).
 
 ---
 

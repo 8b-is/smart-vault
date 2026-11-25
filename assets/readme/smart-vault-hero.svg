@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 460" width="1200" height="460" role="img" aria-label="smart-vault — 8b.is-crew Pure-Rust #![no_std] + ASM + CSR Sovereign Memory Stack">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#07090F"/>
+      <stop offset="50%" stop-color="#0C101B"/>
+      <stop offset="100%" stop-color="#080A12"/>
+    </linearGradient>
+    <linearGradient id="obsidianGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    <linearGradient id="treeGlow" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#34D399"/>
+    </linearGradient>
+    <linearGradient id="waveGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+    <linearGradient id="palaceGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#FDE68A"/>
+    </linearGradient>
+    <filter id="glow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1E293B" stroke-width="0.6" opacity="0.45"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="460" fill="url(#bg)"/>
+  <rect width="1200" height="460" fill="url(#grid)"/>
+
+  <!-- Top Header -->
+  <text x="64" y="68" fill="#F8FAFC" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="38" font-weight="700" letter-spacing="2">smart-vault</text>
+  <text x="338" y="64" fill="#94A3B8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13.5" letter-spacing="1.1">8b-is/smart-vault · PURE-RUST #![no_std] + ASM + CSR GRAPH MEMORY STACK</text>
+  <rect x="64" y="84" width="1072" height="1" fill="#1E293B"/>
+
+  <!-- Inter-layer resonance spine -->
+  <path d="M 225 250 C 310 250, 320 250, 395 250" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,5" fill="none"/>
+  <path d="M 545 250 C 610 250, 620 250, 680 250" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,5" fill="none"/>
+  <path d="M 850 250 C 905 250, 915 250, 975 250" stroke="#475569" stroke-width="1.5" stroke-dasharray="5,5" fill="none"/>
+
+  <!-- Layer 1: Obsidian Knowledge Graph -->
+  <g transform="translate(155, 250)">
+    <rect x="-95" y="-120" width="190" height="240" rx="14" fill="#0F1422" stroke="#4C1D95" stroke-width="1.2" opacity="0.9"/>
+    <g filter="url(#glow)" stroke="url(#obsidianGlow)" stroke-width="1.6" fill="none">
+      <polygon points="0,-68 52,-20 34,46 -34,46 -52,-20" opacity="0.75"/>
+      <line x1="0" y1="-68" x2="0" y2="10"/>
+      <line x1="0" y1="10" x2="52" y2="-20"/>
+      <line x1="0" y1="10" x2="-52" y2="-20"/>
+      <line x1="0" y1="10" x2="34" y2="46"/>
+      <line x1="0" y1="10" x2="-34" y2="46"/>
+    </g>
+    <circle cx="0" cy="-68" r="5" fill="#C4B5FD"/>
+    <circle cx="52" cy="-20" r="4.5" fill="#A78BFA"/>
+    <circle cx="-52" cy="-20" r="4.5" fill="#A78BFA"/>
+    <circle cx="34" cy="46" r="4.5" fill="#818CF8"/>
+    <circle cx="-34" cy="46" r="4.5" fill="#818CF8"/>
+    <circle cx="0" cy="10" r="7" fill="#F5F3FF"/>
+    <text x="0" y="84" text-anchor="middle" fill="#E2E8F0" font-family="ui-monospace, monospace" font-size="13" font-weight="700">OBSIDIAN VAULT</text>
+    <text x="0" y="102" text-anchor="middle" fill="#94A3B8" font-family="ui-monospace, monospace" font-size="11">CSR · Tarjan · NEON · BM25+</text>
+  </g>
+
+  <!-- Layer 2: 8b-is/smart-tree -->
+  <g transform="translate(465, 250)">
+    <rect x="-95" y="-120" width="190" height="240" rx="14" fill="#0D1719" stroke="#065F46" stroke-width="1.2" opacity="0.9"/>
+    <g filter="url(#glow)" stroke="url(#treeGlow)" stroke-linecap="round" fill="none">
+      <line x1="0" y1="54" x2="0" y2="-6" stroke-width="3"/>
+      <line x1="0" y1="-6" x2="-34" y2="-40" stroke-width="2.2"/>
+      <line x1="0" y1="-6" x2="34" y2="-40" stroke-width="2.2"/>
+      <line x1="-34" y1="-40" x2="-54" y2="-68" stroke-width="1.6"/>
+      <line x1="-34" y1="-40" x2="-14" y2="-68" stroke-width="1.6"/>
+      <line x1="34" y1="-40" x2="14" y2="-68" stroke-width="1.6"/>
+      <line x1="34" y1="-40" x2="54" y2="-68" stroke-width="1.6"/>
+    </g>
+    <circle cx="-54" cy="-68" r="4" fill="#6EE7B7"/>
+    <circle cx="-14" cy="-68" r="4" fill="#6EE7B7"/>
+    <circle cx="14" cy="-68" r="4" fill="#6EE7B7"/>
+    <circle cx="54" cy="-68" r="4" fill="#6EE7B7"/>
+    <circle cx="0" cy="-6" r="5" fill="#34D399"/>
+    <text x="0" y="84" text-anchor="middle" fill="#E2E8F0" font-family="ui-monospace, monospace" font-size="13" font-weight="700">SMART TREE (st)</text>
+    <text x="0" y="102" text-anchor="middle" fill="#94A3B8" font-family="ui-monospace, monospace" font-size="11">AI Trees · .m8 Waves</text>
+  </g>
+
+  <!-- Layer 3: MemNet MEM|8 Mesh -->
+  <g transform="translate(760, 250)">
+    <rect x="-95" y="-120" width="190" height="240" rx="14" fill="#0B1622" stroke="#0E7490" stroke-width="1.2" opacity="0.9"/>
+    <g filter="url(#glow)" stroke="url(#waveGlow)" fill="none">
+      <circle cx="0" cy="-10" r="18" stroke-width="2"/>
+      <circle cx="0" cy="-10" r="36" stroke-width="1.5" opacity="0.75"/>
+      <circle cx="0" cy="-10" r="54" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.55"/>
+    </g>
+    <circle cx="0" cy="-10" r="6" fill="#67E8F9"/>
+    <circle cx="54" cy="-10" r="4" fill="#38BDF8"/>
+    <circle cx="-54" cy="-10" r="4" fill="#38BDF8"/>
+    <circle cx="0" cy="-64" r="4" fill="#22D3EE"/>
+    <text x="0" y="84" text-anchor="middle" fill="#E2E8F0" font-family="ui-monospace, monospace" font-size="13" font-weight="700">MEMNET MESH</text>
+    <text x="0" y="102" text-anchor="middle" fill="#94A3B8" font-family="ui-monospace, monospace" font-size="11">MEM|8 Q&amp;A Offloading</text>
+  </g>
+
+  <!-- Layer 4: MemPalace -->
+  <g transform="translate(1045, 250)">
+    <rect x="-95" y="-120" width="190" height="240" rx="14" fill="#17130B" stroke="#B45309" stroke-width="1.2" opacity="0.9"/>
+    <g filter="url(#glow)" stroke="url(#palaceGlow)" stroke-width="1.6" fill="none">
+      <polygon points="-50,-32 0,-68 50,-32"/>
+      <line x1="-54" y1="-32" x2="54" y2="-32"/>
+      <line x1="-38" y1="-32" x2="-38" y2="38"/>
+      <line x1="-13" y1="-32" x2="-13" y2="38"/>
+      <line x1="13" y1="-32" x2="13" y2="38"/>
+      <line x1="38" y1="-32" x2="38" y2="38"/>
+      <line x1="-54" y1="38" x2="54" y2="38" stroke-width="2.2"/>
+    </g>
+    <text x="0" y="84" text-anchor="middle" fill="#E2E8F0" font-family="ui-monospace, monospace" font-size="13" font-weight="700">MEMPALACE</text>
+    <text x="0" y="102" text-anchor="middle" fill="#94A3B8" font-family="ui-monospace, monospace" font-size="11">Wings · Rooms · Drawers</text>
+  </g>
+
+  <!-- Footer Strip -->
+  <text x="64" y="428" fill="#64748B" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11.5">MCP (15 TOOLS) · mimalloc · Apple codesign + SHA-256 · AGENT-AGNOSTIC (ANTIGRAVITY / CODEX / CLAUDE / GEMINI / CURSOR / WINDSURF / ZCODE) · MIT</text>
+</svg>

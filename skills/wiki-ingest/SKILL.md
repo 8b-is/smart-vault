@@ -10,14 +10,10 @@ source. Treat `inbox/` as visible staging and `.raw/` as the legacy immutable
 source archive. Files already present in either location remain user-owned and
 read-only.
 
-Resolve the portable core from this skill's installation. Resolve the user vault
-by explicit `--vault`, `CLAUDE_OBSIDIAN_VAULT`, workspace config, then
-current-directory discovery. Never select the plugin/product root.
+Resolve the user vault via `smart-vault`:
 
 ```bash
-PRODUCT_ROOT=/absolute/path/to/installed/claude-obsidian
-CORE="$PRODUCT_ROOT/scripts/claude-obsidian.py"
-test -f "$CORE"
+smart-vault doctor --vault "$VAULT"
 ```
 
 Every `../wiki/references/` link in this file resolves the same way, relative
@@ -135,9 +131,9 @@ per-source/per-worker applies.
 ## Preview, apply, and recover
 
 ```bash
-python3 "$CORE" workflow inspect /path/to/ingest-bundle.json --vault /path/to/vault
+smart-vault transaction inspect /path/to/ingest-bundle.json --vault /path/to/vault
 # Set APPROVAL_SHA256 to the inspect result's approval_sha256 after review.
-python3 "$CORE" workflow apply /path/to/ingest-bundle.json --vault /path/to/vault \
+smart-vault transaction apply /path/to/ingest-bundle.json --vault /path/to/vault \
   --approved-plan-sha256 "$APPROVAL_SHA256"
 ```
 
@@ -158,14 +154,7 @@ claim assessments, contradictions, and skipped items before apply. Canonical
 replacements or an expanded scope require explicit review.
 
 Report the operation ID and exact changed paths. Reapplying an identical bundle
-with the same ID is a no-op; a different bundle must use a new ID. On exit 75,
-re-read and rebuild. Use `transaction recover` after interruption.
-
-Create a Git checkpoint only when requested:
-
-```bash
-python3 "$CORE" checkpoint OPERATION_ID --vault /path/to/vault
-```
+with the same ID is a no-op; a different bundle must use a new ID. Use `smart-vault transaction recover --apply` after interruption, and optionally sync salient `MEM|8` waves with `smart-vault remember --vault /path/to/vault`.
 
 Observe the source and existing vault first, verify every claim against its
 evidence, then grow the graph only where the source adds durable knowledge.

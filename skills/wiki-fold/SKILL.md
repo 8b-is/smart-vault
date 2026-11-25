@@ -9,14 +9,10 @@ Create an additive rollup of raw `wiki/log.md` entries. Never modify, move, or
 delete child entries or their pages. Do not perform fold-of-folds or trigger a
 fold automatically.
 
-Resolve the portable core from this skill's installation. Resolve the user vault
-by explicit `--vault`, `CLAUDE_OBSIDIAN_VAULT`, workspace config, then
-current-directory discovery. Never treat the plugin/product root as a vault.
+Verify vault selection with `smart-vault`:
 
 ```bash
-PRODUCT_ROOT=/absolute/path/to/installed/claude-obsidian
-CORE="$PRODUCT_ROOT/scripts/claude-obsidian.py"
-test -f "$CORE"
+smart-vault doctor --vault "$VAULT"
 ```
 
 Every `../wiki/references/` link in this file resolves the same way, relative
@@ -91,21 +87,14 @@ commits, or one apply per file.
 Inspect before the single apply:
 
 ```bash
-python3 "$CORE" transaction inspect /path/to/fold-bundle.json --vault /path/to/vault
+smart-vault transaction inspect /path/to/fold-bundle.json --vault /path/to/vault
 # Set APPROVAL_SHA256 to the inspect result's approval_sha256 after review.
-python3 "$CORE" transaction apply /path/to/fold-bundle.json --vault /path/to/vault \
+smart-vault transaction apply /path/to/fold-bundle.json --vault /path/to/vault \
   --approved-plan-sha256 "$APPROVAL_SHA256"
 ```
 
-Report the operation ID and exact changed paths. The identical bundle and ID are
-idempotent. On exit 75, re-read and rebuild; after interruption, use
-`transaction recover`.
-
-Git history is a separate optional action:
-
-```bash
-python3 "$CORE" checkpoint OPERATION_ID --vault /path/to/vault
-```
+Report the operation ID and exact changed paths. After interruption, use
+`smart-vault transaction recover --apply`.
 
 Observe all selected entries, verify traceability and counts, then grow the
 rollup only from what its children actually say.

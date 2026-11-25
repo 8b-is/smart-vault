@@ -1,28 +1,27 @@
 {
-  "name": "claude-obsidian",
-  "version": "3.0.1",
-  "description": "Local-first Agent Skills package and Claude Code plugin for source-cited Obsidian knowledge bases. Provides explicit vault initialization and adoption, recoverable operation transactions, deterministic lint and retrieval, provenance ledgers, offline-first capture foundations, and optional methodology modes. User vaults stay outside the plugin cache; network and destructive actions require explicit consent.",
+  "name": "smart-vault",
+  "version": "4.2.0",
+  "description": "Agent-agnostic, pure-Rust #![no_std]-core second brain for Obsidian wired into 8b-is/smart-tree, MemNet, and MemPalace. Features aarch64 NEON/ASM primitives, CSR graph analytics (Tarjan SCC + PageRank), mimalloc, parallel BM25+ retrieval, crash-safe SHA-256 transactions, codesign binary signing, and stdio MCP server. Made with <3 from 8b.is-crew.",
   "author": {
-    "name": "AgriciDaniel",
-    "url": "https://github.com/AgriciDaniel"
+    "name": "8b.is-crew",
+    "url": "https://8b.is"
   },
   "license": "MIT",
-  "homepage": "https://github.com/AgriciDaniel/claude-obsidian",
-  "repository": "https://github.com/AgriciDaniel/claude-obsidian",
+  "homepage": "https://github.com/peterlodri-sec/claude-obsidian",
+  "repository": "https://github.com/peterlodri-sec/claude-obsidian",
   "keywords": [
     "obsidian",
     "knowledge-base",
-    "wiki",
-    "memory",
-    "notetaker",
+    "rust",
+    "smart-tree",
+    "memnet",
+    "mem8",
+    "mcp",
+    "agent-agnostic",
     "second-brain",
     "vault",
     "markdown",
-    "cross-project",
-    "llm-wiki",
-    "karpathy",
-    "pkm",
-    "canvas",
-    "visual"
+    "bm25",
+    "pkm"
   ]
 }

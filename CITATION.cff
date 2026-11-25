@@ -1,20 +1,26 @@
 cff-version: 1.2.0
-title: claude-obsidian
+title: smart-vault
 message: >-
   If you use this software, please cite it using the metadata from this file.
 type: software
 authors:
+  - name: 8b.is-crew
   - alias: AgriciDaniel
-repository-code: 'https://github.com/AgriciDaniel/claude-obsidian'
-url: 'https://github.com/AgriciDaniel/claude-obsidian'
+repository-code: 'https://github.com/peterlodri-sec/claude-obsidian'
+url: 'https://github.com/peterlodri-sec/claude-obsidian'
 license: MIT
-version: 3.0.1
-date-released: '2026-10-21'
+version: 4.2.0
+date-released: '2026-11-25'
 keywords:
   - obsidian
-  - claude-code
-  - knowledge-management
+  - smart-vault
+  - smart-tree
+  - memnet
+  - mempalace
+  - rust
+  - no-std
+  - knowledge-graph
+  - bm25
+  - mcp
   - second-brain
   - pkm
-  - llm-wiki
-  - rag

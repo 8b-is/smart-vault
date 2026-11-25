@@ -1,97 +1,41 @@
-# claude-obsidian: Agent Instructions
+# smart-vault: Agent Instructions
 
-claude-obsidian is a local-first Agent Skills package for building source-cited,
-compounding Obsidian knowledge bases. It also ships a Claude Code plugin adapter.
-The portable workflow is implemented in `skills/` and the standard-library
-`claude_obsidian/` core; host hooks never define knowledge behavior.
+`smart-vault` (`8b-is/smart-vault`, evolved from `claude-obsidian`, **made with `<3` from `8b.is-crew`**) is a **100% pure-Rust, agent-agnostic** local-first Obsidian knowledge-graph engine built on a zero-allocation `#![no_std]` core (`crates/smart-vault-core` with `aarch64` assembly/NEON SIMD, CSR graph analytics, iterative Tarjan SCC, PageRank, and IEEE-754 BM25+ math) wired directly into **`8b-is/smart-tree` (`st`)**, **`MemNet`**, and **`MemPalace`**.
+
+It exposes both a native signed CLI (`smart-vault`, alias `sv`) with `mimalloc` and an agent-agnostic stdio JSON-RPC 2.0 MCP server (`smart-vault mcp`) for Antigravity IDE & CLI, Codex, Claude Code, Gemini, OpenCode, Cursor, Windsurf, ZCode, and any MCP/Agent-Skills host.
 
 ## Product and vault boundaries
 
-- This repository is the product source. It is not the default user vault.
-- A user vault is the directory containing `.claude-obsidian.json`, `wiki/`,
-  and `.raw/`. Mutable state always belongs there.
-- `templates/vault/` is the distributable seed. Root `wiki/`, `.raw/`, and
-  `.vault-meta/` are contributor state and are excluded from public artifacts.
-- Never derive a user vault from the plugin cache or `${CLAUDE_PLUGIN_ROOT}`.
-- A checkout containing contributor-vault state has no marketplace catalog.
-  `config/public-marketplace.json` is injected as
-  `.claude-plugin/marketplace.json` only inside the audited release artifact.
-  An extracted distribution-clean artifact may retain that exact manifest and
-  rebuild idempotently. A public default branch must be populated from the clean
-  artifact, never by pushing contributor-vault state.
-
-Resolve a vault in this order: explicit `--vault`,
-`CLAUDE_OBSIDIAN_VAULT`, nearest `.claude-obsidian.json`, then an unambiguous
-vault at or above the current directory. Fail closed when no vault is selected.
+- This repository is the product source (`crates/`, `src/`, `skills/`, `templates/`). It is **not** a user vault.
+- A user vault is the directory containing `.smart-vault.json` (or legacy `.memvault.json` / `.claude-obsidian.json`), `wiki/`, and `.raw/`.
+- Resolve a vault in this order: explicit `--vault PATH`, `SMART_VAULT_ROOT`, `MEMVAULT_ROOT`, `CLAUDE_OBSIDIAN_VAULT`, or walking up from `CWD`. Fail closed when no vault is selected.
+- Raw payloads under `.raw/` are create-only. Destructive repairs and remote network egress require explicit user consent.
 
 ## Bootstrap
 
-1. Read this file. In a development checkout, also read the host-only root
-   `CLAUDE.md` when present; release artifacts intentionally omit it.
-2. Read the selected skill completely.
-3. Read only the references that skill routes to.
-4. Resolve the user vault. If `wiki/hot.md` exists, read it silently.
-5. For a new vault, run `python3 scripts/claude-obsidian.py init PATH` first;
-   apply only after reviewing the dry run. Use `adopt` for an existing vault.
+1. Read this file and load the matching skill under `skills/<name>/SKILL.md`.
+2. Resolve the user vault with `smart-vault doctor --vault <path>` (or MCP tool `vault_doctor`).
+3. For a new vault, preview `smart-vault init --vault <path>` first; pass `--apply` only after review. Use `smart-vault adopt` for an existing Obsidian vault.
+4. For visual structure and code/note context, call `smart-vault tree --mode ai` (powered by `8b-is/smart-tree` `st` with pure-Rust fallback).
+5. For persistent `MEM|8` wave memory, call `smart-vault remember` (`st remember`) or `smart-vault mesh ask` / `smart-vault mesh teach`.
 
-## Canonical skills
+## Core CLI & MCP Entrypoints
 
-All 15 skills live at `skills/<name>/SKILL.md`. They use the portable Agent
-Skills frontmatter subset: exactly `name` and `description`. Do not add mirrored
-files under `commands/`; Claude invokes plugin skills by namespaced names such
-as `/claude-obsidian:wiki`.
-
-Core workflows are `wiki`, `save`, `wiki-ingest`, `wiki-query`, and
-`wiki-lint`. Extensions are `autoresearch`, `canvas`, `defuddle`, `wiki-fold`,
-`wiki-mode`, `wiki-retrieve`, and `wiki-cli`. Reference skills are
-`obsidian-markdown`, `obsidian-bases`, and `think`.
-
-## Mutation protocol
-
-One logical knowledge operation is one recoverable transaction:
-
-1. Read targets and record expected SHA-256 values.
-2. Let parallel workers return drafts and evidence only.
-3. Merge drafts into one `claude-obsidian.transaction.v1` bundle.
-4. Inspect the bundle, then apply it once through `scripts/claude-obsidian.py`.
-5. Report the operation ID and exact changed paths.
-
-Do not use direct shared writes, the deprecated `wiki-lock.sh` helper, or
-generic lifecycle auto-commits. Git checkpointing is separate and explicit.
-Raw source payloads are create-only; `.raw/.manifest.json` is the only mutable
-legacy raw metadata file. Destructive repairs, remote egress, and canonical
-research merges require explicit consent.
-
-## Vault conventions
-
-- `inbox/`: visible capture intake; never deleted automatically.
-- `.raw/`: immutable source payloads and legacy delta manifest.
-- `wiki/`: generated knowledge pages.
-- `wiki/meta/ledgers/`: source and claim provenance.
-- `wiki/hot.md`: bounded recent context, never a transcript.
-- `wiki/log.md`: operation history, newest first.
-- `.vault-meta/`: ignored runtime locks, journals, indexes, queues, and config.
-
-Use Obsidian Flavored Markdown: flat YAML properties, `YYYY-MM-DD` dates,
-wikilinks, embeds, and valid callouts. Never fabricate evidence locators,
-quotations, page numbers, or confidence.
+- `smart-vault doctor` — vault readiness, locks/journals, `st` availability, `st memnet` route count, `mempalace` status.
+- `smart-vault scan` — parallel `rayon` scan of markdown pages, inbox items, and `.raw/` files.
+- `smart-vault lint [--format json|markdown]` — parallel CSR graph lint (broken links, orphans, missing frontmatter, empty sections, duplicates, Tarjan SCC cycles, PageRank hubs).
+- `smart-vault index` — build parallel BM25+ inverted index (`.vault-meta/bm25/index.json`).
+- `smart-vault query "<text>" [--mesh] [--palace] [--top 8]` — parallel BM25+ search + optional MemNet wave cache + MemPalace drawers.
+- `smart-vault tree [--mode ai|classic|quantum|json]` — `8b-is/smart-tree` directory view.
+- `smart-vault remember [--level expert] [--check]` — `st remember` `MEM|8` wave sync.
+- `smart-vault mesh <status|routes|share|ask|teach>` — live `MemNet` wave mesh & folder sharing.
+- `smart-vault palace <status|wake-up|search|mine|export|daemon>` — local `MemPalace` verbatim spatial memory.
+- `smart-vault mcp` — stdio JSON-RPC 2.0 MCP server (`vault_*` + `mesh_*` + `palace_*` tools).
+- `smart-vault transaction <inspect|apply|recover>` — SHA-256 approval-pinned atomic transactions under `fs2` lock.
+- `smart-vault sign <binary> [--identity <id>] [--write-sha256]` / `verify-binary <binary> [--sha256 <hex>]` — macOS `codesign` + constant-time SHA-256 verification.
+- `smart-vault setup-host --host <claude|codex|opencode|gemini|antigravity|cursor|windsurf|zcode|all> [--apply]` — link `skills/` into any AI host.
+- `smart-vault setup-global [--apply]` — automated signed M1 Antigravity IDE+CLI global MCP + hook + skill setup (see [M1 guide](docs/m1-antigravity-mempalace-guide.md)).
 
 ## Verification
 
-Run `make test` after behavioral changes. It executes every Python and shell
-suite plus the product, capability, package, hook, and manifest contracts.
-Public artifacts are built locally with `release build` and audited without
-publishing. No agent may push, tag, open or mutate issues, or publish a release
-without explicit owner approval.
-
-Claude SessionStart context injection is disabled by default. Treat
-`CLAUDE_OBSIDIAN_SESSION_CONTEXT=1` as explicit user consent to place bounded
-`wiki/hot.md` data in the model context; never set it automatically. A
-workspace-configured vault outside the project also requires an exact
-`CLAUDE_OBSIDIAN_SESSION_CONTEXT_VAULT` path.
-
-## Reference
-
-- Public canonical repository: https://github.com/AgriciDaniel/claude-obsidian
-- LLM Wiki pattern: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
-- Obsidian primitives: https://github.com/kepano/obsidian-skills
+Run `make check-nostd`, `make lint`, and `make test` (`cargo test --workspace` + contracts + package validation) after any change.

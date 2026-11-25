@@ -1,6 +1,5 @@
-# The portable core is standard-library Python, so GitHub Actions are the only
-# dependencies. Workflows pin each action to a full commit SHA; Dependabot
-# proposes reviewed SHA updates and keeps the version comment in step.
+# smart-vault uses pure Rust crates (Cargo.toml / Cargo.lock) and SHA-pinned GitHub Actions.
+# Dependabot proposes reviewed updates for both ecosystems cleanly.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -15,3 +14,11 @@ updates:
           - "*"
     commit-message:
       prefix: chore(ci)
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+    commit-message:
+      prefix: chore(deps)

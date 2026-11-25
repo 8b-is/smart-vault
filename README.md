@@ -1,391 +1,193 @@
-<!--
-  claude-obsidian: a free, open-source AI second brain for Obsidian and Claude Code, by Agrici Daniel.
-  Drop in sources and Claude reads, links and files them into a connected knowledge graph of plain Markdown you own.
-  Personal knowledge management (PKM), AI note-taking and a local-first wiki, based on Andrej Karpathy's LLM Wiki pattern.
-  15 skills and 3 agents. Works in Claude Code, Codex, OpenCode, Gemini, ZCode, Cursor and Windsurf. MIT licensed.
--->
-
-<img src="assets/readme/hero.svg" width="1200" height="420" alt="claude-obsidian, an AI second brain for Obsidian: files from inbox/, a pasted note and approved web research become linked notes in one safe transaction, a constellation of knowledge grows, and an answer is saved as a new note." />
-
-<h1 align="center">claude-obsidian</h1>
-
 <p align="center">
-  <b>Your AI second brain for <a href="https://obsidian.md">Obsidian</a>, built for <a href="https://claude.com/product/claude-code">Claude Code</a>.</b><br />
-  Drop in sources. Get a connected wiki that grows every time you use it.
+  <img src="assets/readme/smart-vault-hero.svg" alt="smart-vault — 8b-is/smart-vault Sovereign Rust #![no_std] Memory Stack" width="100%" />
 </p>
 
 <p align="center">
-  <a href="#install">Install</a> ·
-  <a href="#see-the-vault">See the vault</a> ·
-  <a href="#15-skills-one-system">Skills</a> ·
-  <a href="#meet-the-crew">Agents</a> ·
-  <a href="#nothing-gets-lost">Safety</a> ·
-  <a href="#shape-the-vault-to-the-way-you-think">Modes</a> ·
-  <a href="#faq">FAQ</a>
+  <a href="Cargo.toml"><img src="https://img.shields.io/badge/Rust-100%25_Pure_Rust_%23!%5Bno__std%5D_Core-orange?logo=rust" alt="Pure Rust #![no_std] Core" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue" alt="MIT License" /></a>
+  <a href="#agent-agnostic-mcp-server-15-tools"><img src="https://img.shields.io/badge/MCP-15_Tools-6366F1" alt="MCP 15 Tools" /></a>
+  <a href="https://github.com/8b-is/smart-tree"><img src="https://img.shields.io/badge/Smart_Tree-st-10B981" alt="Smart Tree st" /></a>
+  <a href="https://github.com/8b-is/smart-tree"><img src="https://img.shields.io/badge/MemNet-MEM%7C8-06B6D4" alt="MemNet MEM|8" /></a>
+  <a href="docs/m1-antigravity-mempalace-guide.md"><img src="https://img.shields.io/badge/MemPalace-Spatial_Memory-F59E0B" alt="MemPalace" /></a>
+  <a href="ATTRIBUTION.md"><img src="https://img.shields.io/badge/Made_by-8b.is--crew-0F172A" alt="8b.is-crew" /></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/AgriciDaniel/claude-obsidian/actions/workflows/test.yml"><img src="https://github.com/AgriciDaniel/claude-obsidian/actions/workflows/test.yml/badge.svg" alt="Tests" /></a>
-  <a href="https://code.claude.com/docs/en/plugins"><img src="https://img.shields.io/badge/Claude%20Code-plugin-7c3aed" alt="Claude Code plugin" /></a>
-  <a href="https://agentskills.io"><img src="https://img.shields.io/badge/Agent%20Skills-compatible-2563eb" alt="Agent Skills compatible" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
-  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/release-v3.0.1-d97745" alt="Release v3.0.1" /></a>
-  <a href="https://github.com/AgriciDaniel/claude-obsidian/stargazers"><img src="https://img.shields.io/github/stars/AgriciDaniel/claude-obsidian?style=flat" alt="GitHub stars" /></a>
-  <a href="https://www.skool.com/ai-marketing-hub-pro"><img src="https://img.shields.io/badge/AI%20Marketing%20Hub-Pro%20community-purple" alt="AI Marketing Hub Pro community" /></a>
+  <b>Sovereign, agent-agnostic second brain for <a href="https://obsidian.md">Obsidian</a> — zero-alloc <code>#![no_std]</code> graph/ASM core wired into <a href="https://github.com/8b-is/smart-tree">8b-is/smart-tree</a> (<code>st</code>), <code>MemNet</code> (<code>MEM|8</code>), and <code>MemPalace</code>.</b><br />
+  Drop in raw sources. Maintain a cited, CSR-analyzed, NEON/ASM-accelerated, SHA-256 crash-safe Markdown knowledge graph across every AI host.<br />
+  <sub>Made with &lt;3 from <b>8b.is-crew</b> · Evolved from <a href="https://github.com/AgriciDaniel/claude-obsidian">AgriciDaniel/claude-obsidian</a> (MIT)</sub>
 </p>
 
-<p align="center">
-  <a href="https://www.star-history.com/agricidaniel/claude-obsidian">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=AgriciDaniel/claude-obsidian&type=trending&theme=dark" />
-      <img src="https://api.star-history.com/badge?repo=AgriciDaniel/claude-obsidian&type=trending" alt="GitHub Trending Repository of the Day" />
-    </picture>
-  </a>
-</p>
+---
 
-**claude-obsidian turns the things you read into a knowledge base that keeps getting more useful.** Drop a paper, an article, a transcript or your own notes into the vault, and Claude reads them, writes linked notes with sources, and files everything into one connected knowledge graph you can explore in Obsidian.
+## Steno-Ontological Stack
 
-- **Capture.** Put sources in `inbox/`. The originals are kept, untouched, so every summary can point back to where it came from.
-- **Connect.** Claude writes linked pages, indexes and maps of content, so new ideas join the graph instead of piling up.
-- **Ask.** Get answers from what your vault already knows, with citations, without changing a single file.
-- **Save.** Keep the answers worth keeping as notes, one at a time, when you ask.
-- **Check.** A health check finds dead links, orphan pages and gaps before they spread.
+`smart-vault` (`sv`) unifies four sovereign memory layers behind a zero-dependency `#![no_std]` kernel ([crates/smart-vault-core](crates/smart-vault-core/src/lib.rs)), a `mimalloc`-accelerated signed Rust binary, and a 15-tool stdio JSON-RPC 2.0 MCP server:
 
-Everything stays as plain Markdown files on your computer. No cloud database, no lock-in, no telemetry. Apart from the AI tool you chat with, nothing leaves your machine unless you say so.
+```mermaid
+flowchart LR
+    Vault["Obsidian Vault (wiki/ · .raw/ · .vault-meta/)"]
+    Kernel["smart-vault-core (#![no_std] · aarch64 ASM/NEON · CSR · Tarjan · PageRank)"]
+    Core["smart-vault Runtime (mimalloc · rayon BM25+ · SHA-256 Txn · codesign)"]
+    Tree["8b-is/smart-tree (st) — AI Trees & .m8 Waves"]
+    Mesh["MemNet (MEM|8) — Wave Q&A Cache & Mesh"]
+    Palace["MemPalace — Wings, Rooms & Drawers"]
+    Hosts["Agent Hosts (MCP 15 Tools · CLI · Hooks · Skills)"]
 
-## See the vault
-
-The result is a normal Obsidian vault that stays useful with or without an AI: browse it in Graph view, or lay it out as a map in Obsidian Canvas.
-
-<p align="center">
-  <img src="assets/screenshots/graph-view.png" alt="A claude-obsidian vault in Obsidian Graph view: linked notes grouped into clusters" width="49%" />
-  <img src="assets/screenshots/wiki-map-view.png" alt="A claude-obsidian knowledge map in Obsidian Canvas, with hub pages, indexes and linked ideas" width="49%" />
-</p>
-
-<p align="center"><sub>Linked notes in Graph view · A knowledge map in Obsidian Canvas</sub></p>
-
-## Install
-
-<img src="assets/readme/install.svg" width="1200" height="420" alt="Installing claude-obsidian: a terminal adds the marketplace and installs the plugin, an inventory fills with all 15 skills and the 3 agents march in. /claude-obsidian:wiki previews the new vault first and creates it only after you approve. PRESS START." />
-
-You need [Claude Code](https://claude.com/product/claude-code), Python 3.11 or newer and, for the visual side, [Obsidian](https://obsidian.md). Install the plugin with two commands:
-
-```bash
-claude plugin marketplace add AgriciDaniel/claude-obsidian
-claude plugin install claude-obsidian@agricidaniel-claude-obsidian
+    Vault <-->|"Markdown · Wikilinks · fs2 Lock"| Core
+    Kernel -->|"Zero-Alloc Graph & SIMD Kernels"| Core
+    Core <-->|"st --mode ai · st remember"| Tree
+    Core <-->|"st memnet ask / teach / share"| Mesh
+    Core <-->|"mempalace search / mine / daemon"| Palace
+    Core <-->|"stdio JSON-RPC 2.0 · CLI · Hooks"| Hosts
 ```
 
-Then open the folder you want as your vault and start Claude Code there:
+| Layer / Entity | Canonical Representation | Engine / Binary | Invariant | Observed Capabilities & Architecture |
+|---|---|---|---|---|
+| **L0 · `#![no_std]` Kernel** | `CsrGraph`, bitsets, stack `TopK`, slice scanners | [`smart-vault-core`](crates/smart-vault-core/Cargo.toml) (`asm.rs`, `graph.rs`, `scan.rs`, `bm25_math.rs`) | Zero heap allocation, zero dependencies (`no_std`), pure IEEE-754 math | `aarch64` NEON 16B `simd_ascii_lowercase_in_place` & `simd_contains_byte`, `rbit`/`clz` `ctz_u64`, barrier `ct_eq_bytes`, iterative Tarjan SCC & PageRank |
+| **L1 · Obsidian Vault** | `wiki/**/*.md`, `.raw/` payloads, `.smart-vault.json`, `.vault-meta/` | `smart-vault` (`src/vault.rs`, `src/lint.rs`, `src/bm25.rs`, `src/transaction.rs`) | `.raw/` is create-only; mutations require `fs2` lock, SHA-256 plan approval & pre-image journal | Parallel CSR graph lint + cyclic SCC/hub detection, `rayon` BM25+ index/query, `mimalloc` allocator, `Wl,-dead_strip` + fat LTO |
+| **L2 · Smart Tree** | AI-compressed trees (<code>--mode ai&#124;classic&#124;quantum&#124;json</code>) & `.vault-meta/vault.m8` waves | `st` (`8b-is/smart-tree`) + Rust `WalkDir`/`rayon` fallback (`src/smart_tree.rs`) | Read-only structural probes (`--no-update-check`); automatic Rust fallback when `st` is absent | Native compiled `st` binary with built-in parallel Rust fallback |
+| **L3 · MemNet Mesh** | <code>MEM&#124;8</code> wave Q&A packets (`ask` / `teach`), live `routes`, shared folder quotas | `st memnet` bridged via `src/memnet.rs` | Bounded subprocess timeouts (`5 s` mesh ops, `1.5 s` hybrid `--mesh` check); non-blocking fallback to BM25+ | Checked ahead of/alongside local BM25+ with `1.5 s` hybrid timeout |
+| **L4 · MemPalace** | Verbatim Wings / Rooms / Drawers (`~/.config/mempalace/palace`, ChromaDB + HNSW + SQLite) | `mempalace` / `mempalace-mcp` / `mempalace daemon` (`src/mempalace.rs`) | Fast read-only `repair-status` default (`--full` opt-in); bounded timeouts (`10 s` fast / `45 s` heavy / `5 s` hook) | Warm `mempalace daemon` avoids cold ChromaDB/HNSW reload across `1.56M+` drawers |
+| **Control & Signing** | Stdio JSON-RPC 2.0 (`15` tools), lifecycle hooks, `skills/*/SKILL.md`, `.sha256` sidecars | `smart-vault mcp`, `hook`, `sign`, `verify-binary`, `setup-host`, `setup-global` | Diagnostics on `stderr` only; dry-run by default (`--apply` required); `0600` secret-bearing configs + macOS `codesign` | Signed global `~/.local/bin/smart-vault` + `sv` symlink; zero Python/Bash runtime required |
+
+---
+
+## Quick Start & M1 64 GB Global Setup
+
+### Build, Sign & Install
 
 ```bash
-claude                                   # start Claude Code in your vault folder
-
-/claude-obsidian:wiki                    # set up the vault (shows you a preview first)
-/claude-obsidian:wiki-ingest             # turn what is in inbox/ into linked notes
-/claude-obsidian:wiki-query              # ask a question, answered from your notes
-/claude-obsidian:save                    # keep a good answer as a note
-/claude-obsidian:wiki-lint               # health check: dead links, orphans, gaps
+cargo build --release
+cargo install --path .
 ```
 
-Open the same folder in Obsidian with **Open folder as vault** to browse your notes as they grow.
+### Automated M1 64 GB Global Setup (Antigravity IDE + CLI + MemPalace)
 
-Already have an Obsidian vault? `/claude-obsidian:wiki` can adopt it without moving your notes. The [installation guide](docs/install-guide.md#adopt-an-existing-vault) walks through it.
-
-<details>
-<summary><b>Other AI tools: Codex, OpenCode, Gemini, ZCode, Cursor and Windsurf</b></summary>
-<br />
-
-claude-obsidian is a set of [Agent Skills](https://agentskills.io), so it also runs in other hosts. From a copy of this repo, preview the setup, then apply it:
+See [docs/m1-antigravity-mempalace-guide.md](docs/m1-antigravity-mempalace-guide.md) for the full architecture and rollback flow:
 
 ```bash
-git clone https://github.com/AgriciDaniel/claude-obsidian.git
-cd claude-obsidian
-bash scripts/setup-multi-agent.sh --host codex            # preview, writes nothing
-bash scripts/setup-multi-agent.sh --host codex --apply    # link the skills
+# Preview global binary, codesign, MCP server merges, lifecycle hooks, and skill links (no writes)
+smart-vault setup-global
+
+# Apply idempotently (installs signed ~/.local/bin/smart-vault + sv symlink, creates .json.bak backups)
+smart-vault setup-global --apply
+
+# Verify OS signature and constant-time SHA-256 digest anytime
+smart-vault verify-binary ~/.local/bin/smart-vault
+
+# Optional: keep MemPalace ChromaDB + HNSW resident in M1 64 GB unified memory
+smart-vault palace daemon start
 ```
 
-Use `--host opencode`, `--host gemini` or `--host zcode` the same way. Cursor and Windsurf need a workspace: `--host cursor --host windsurf --workspace <folder> --apply`. Every host is covered in the [installation guide](docs/install-guide.md).
-
-</details>
-
-<details>
-<summary><b>Windows</b></summary>
-<br />
-
-On Windows, use WSL for anything that writes to the vault. Native Windows can inspect and preview, and stops with a clear error instead of writing. The [Windows and WSL guide](docs/windows-wsl.md) has the details.
-
-</details>
-
-<details>
-<summary><b>Upgrading from 2.x or 3.0.0</b></summary>
-<br />
+### Core Vault, Smart Tree, MemNet & MemPalace Commands
 
 ```bash
-claude plugin marketplace update agricidaniel-claude-obsidian
-claude plugin update claude-obsidian@agricidaniel-claude-obsidian
+# Inspect vault readiness, locks/journals, Smart Tree (`st`), MemNet mesh, and MemPalace
+smart-vault doctor --vault examples/sample-vault
+
+# Preview creating a new vault (or adopting an existing Obsidian vault), then apply
+smart-vault init --vault /path/to/my-vault
+smart-vault init --vault /path/to/my-vault --apply
+smart-vault adopt --vault /path/to/existing-vault --apply
+
+# Parallel scan, CSR graph lint (with Tarjan SCC & PageRank hubs), and BM25+ inverted index
+smart-vault scan --vault /path/to/my-vault
+smart-vault lint --vault /path/to/my-vault --format markdown
+smart-vault index --vault /path/to/my-vault
+
+# Unified hybrid query across MemNet MEM|8 wave cache + MemPalace drawers + local BM25+
+sv query --vault /path/to/my-vault "source-grounded notes" --mesh --palace --top 8
+
+# Smart Tree AI-compressed view & salient MEM|8 wave sync
+smart-vault tree --vault /path/to/my-vault --mode ai --depth 3
+smart-vault remember --vault /path/to/my-vault --level expert
+
+# MemNet mesh telemetry, wave Q&A, and folder sharing
+smart-vault mesh status
+smart-vault mesh routes
+smart-vault mesh teach "how does smart-vault handle links?" "Parallel CSR graph lint checks wikilinks and markdown links."
+smart-vault mesh ask "how does smart-vault handle links?"
+smart-vault mesh share --vault /path/to/my-vault --quota-mb 4096
+
+# MemPalace status, L0+L1 wake-up, and wiki mining
+smart-vault palace status
+smart-vault palace wake-up
+smart-vault palace mine --vault /path/to/my-vault --wing my_vault
+
+# SHA-256 approval-pinned atomic transactions & crash recovery
+smart-vault transaction inspect bundle.json
+smart-vault transaction apply bundle.json --approved-plan-sha256 <sha256>
+smart-vault transaction recover
+
+# Binary signing & verification (macOS codesign + constant-time SHA-256)
+smart-vault sign target/release/smart-vault --write-sha256
+smart-vault verify-binary target/release/smart-vault
 ```
 
-Version 3.0.0 alone used the plugin name `agricidaniel-obsidian`. If you installed that one, run the marketplace update, then `claude plugin install claude-obsidian@agricidaniel-claude-obsidian`, and restart Claude Code. See the [namespace migration](docs/namespace-migration.md).
-
-</details>
-
-## 15 skills, one system
-
-<img src="assets/readme/skills.svg" width="1200" height="420" alt="The 15 claude-obsidian skills as planets orbiting the vault crystal: 5 core workflows, 7 extensions and 3 reference skills. The crew visits each one by saucer while the skill log ticks to 15 of 15." />
-
-Talk to it in plain words, or call any skill by name with `/claude-obsidian:<skill>`. Open a group to see what is inside.
-
-<details open>
-<summary><b>Build and use the wiki</b> (5)</summary>
-<br />
-
-| Skill | What it does |
-|---|---|
-| `wiki` | Sets up a new vault or adopts yours, checks it is ready and routes your request |
-| `wiki-ingest` | Turns captured sources into linked pages with their sources recorded |
-| `wiki-query` | Answers from what is already in the vault, read-only |
-| `save` | Keeps one answer or insight as a note, only when you ask |
-| `wiki-lint` | Finds dead links, orphan pages, missing metadata and empty sections |
-
-</details>
-
-<details>
-<summary><b>Extend the workflow</b> (7)</summary>
-<br />
-
-| Skill | What it does |
-|---|---|
-| `autoresearch` | Bounded web research, only with your consent, merged after review |
-| `canvas` | Creates and updates Obsidian Canvas boards |
-| `defuddle` | Plans a clean Markdown capture of a web page; the cleaner itself is an optional external tool |
-| `wiki-fold` | Rolls up the operation log into short, traceable summaries |
-| `wiki-mode` | Sets how new notes are filed: Generic, LYT, PARA or Zettelkasten |
-| `wiki-retrieve` | Local BM25 search with optional reranking |
-| `wiki-cli` | Reads and searches through the official Obsidian command line |
-
-</details>
-
-<details>
-<summary><b>Reference</b> (3)</summary>
-<br />
-
-| Skill | What it does |
-|---|---|
-| `obsidian-markdown` | Correct Obsidian Markdown: links, embeds, callouts and properties |
-| `obsidian-bases` | Native .base tables, cards, filters and formulas |
-| `think` | A structured review loop for hard decisions |
-
-</details>
-
-## Meet the crew
-
-<img src="assets/readme/crew.svg" width="1200" height="420" alt="Meet the crew: the three read-only agents on a turntable. wiki-ingest reads one source and drafts pages, wiki-lint runs the vault health check, and the verifier tests a proposed change. Only the transaction core writes to the vault." />
-
-Behind the skills, three agents do the heavy reading and checking. All three are **read-only**: they hand back drafts and reports, and only one place, the transaction core, ever writes to your vault.
-
-| Agent | What it does |
-|---|---|
-| `wiki-ingest` | Reads one captured source and hands back page drafts, with the hash it expects each target to have |
-| `wiki-lint` | Runs the vault linter, double checks surprising findings and returns a health report |
-| `verifier` | Runs safe tests on a proposed change or release and ranks what it finds |
-
-**Built for:**
-
-- **Researchers and students** who read a lot and want every note to point back to its source.
-- **Writers and creators** who want ideas from videos, articles and books to connect instead of getting lost in folders.
-- **Builders and teams** who keep project knowledge in Markdown and want an AI that can search it, cite it and keep it tidy.
-
-## Nothing gets lost
-
-<img src="assets/readme/safety.svg" width="1200" height="420" alt="Nothing gets lost: Claude records a hash of each note, plans one change and applies it as one transaction. When the power cuts out mid write, the journal rewinds the vault. When you edit a note during planning, a conflict stops the write instead of overwriting your edit." />
-
-Your notes matter, so every change to the vault works like a careful save:
-
-1. **Read first.** Claude reads every note it will touch and records a fingerprint (a SHA-256 hash) of each one.
-2. **One plan, one apply.** Helpers can work in parallel, but they only hand back drafts. Claude merges them into one plan, checks it, and applies it as a single transaction.
-3. **Undo if anything breaks.** A journal keeps backups during the write. If the power cuts out halfway, `transaction recover` rolls the unfinished change back from the journal.
-4. **Your edits win.** If you change a note in Obsidian while Claude is planning, the fingerprint no longer matches and the write stops with a conflict instead of overwriting you.
-
-Web research, Git checkpoints and anything that sends data off your machine are separate steps that ask you first.
-
-<details>
-<summary><b>For the curious: how the vault is chosen and protected</b></summary>
-<br />
-
-The plugin never treats its own folder or cache as your vault. A vault is picked explicitly: through `CLAUDE_OBSIDIAN_VAULT`, the nearest `.claude-obsidian.json`, or one clear initialized parent folder. If it is not sure, it exits without writing.
-
-The lock coordinates local writers that cooperate with it. Other devices and external editors do not share it, so keep backups, especially when you sync Canvas or Base files. Read the [transaction contract](skills/wiki/references/operation-transactions.md), the [provenance contract](skills/wiki/references/provenance.md) and the [Compound Vault guide](docs/compound-vault-guide.md) for the full detail.
-
-</details>
-
-## Shape the vault to the way you think
-
-<img src="assets/readme/modes.svg" width="1200" height="420" alt="Four ways to file notes: the same new note lands where Generic, LYT, PARA or Zettelkasten would put it, while existing notes never move." />
-
-`wiki-mode` sets how new notes are filed, the way you already like to work. Switching modes changes where new notes go and never moves your old ones.
-
-| Mode | How notes are filed |
-|---|---|
-| **Generic** (default) | Sources, concepts, entities and sessions |
-| **LYT** | Maps of Content and linked atomic notes |
-| **PARA** | Projects, Areas, Resources and Archives |
-| **Zettelkasten** | Stable IDs, atomic notes and dense links |
-
-More in the [methodology modes guide](docs/methodology-modes-guide.md).
-
-## How it works
-
-1. **Capture.** Sources go into `inbox/`. claude-obsidian keeps an untouched copy of each one, named by its content, before anything is summarized.
-2. **Ground.** Each important claim in a note is linked to the source that supports it. Weak or conflicting evidence stays visible instead of being smoothed over.
-3. **Compound.** Ask, research, search and lint use what the vault already knows, so every session starts from your notes instead of from zero.
-
-The idea follows [Andrej Karpathy's LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f): let the AI maintain a wiki you can read, instead of a black box you cannot.
-
-<details>
-<summary><b>What it can and cannot read today</b></summary>
-<br />
-
-| Input or feature | Support today |
-|---|---|
-| Local files | Captured and kept as content-addressed copies |
-| Images | Metadata, hash, size and dimensions when available |
-| PDF and EPUB | Metadata, hash and size; no built-in text extraction yet |
-| Web pages and YouTube | Prepared as a plan you approve; fetching needs a separate runner that enforces it |
-| OCR | Needs an external tool you configure |
-| Search (BM25) | Local and deterministic |
-| Reranking or remote models | Optional, and only with your explicit consent |
-| Obsidian CLI | Optional for reading and search |
-
-</details>
-
-<details>
-<summary><b>Command line reference</b></summary>
-<br />
-
-From a clone of this repo, the same core is available as a portable command line: `python3 scripts/claude-obsidian.py`. Commands that change files show a plan first and only apply with the plan's hash.
-
-| Command | What it does |
-|---|---|
-| `doctor --vault PATH` | Shows which vault is selected and whether it is ready |
-| `init PATH` | Plans, then creates, a new vault |
-| `adopt PATH` | Plans, then adopts, an existing Obsidian vault |
-| `lint --vault PATH` | Runs the health check |
-| `capture plan` / `capture apply` | Checks, then keeps, copies of local sources |
-| `transaction recover --vault PATH` | Restores the vault after an interrupted write |
-| `bench --queries FILE --vault PATH` | Measures search quality on your own questions |
-
-Run `python3 scripts/claude-obsidian.py --help`, or add `--help` to any command, to see every option.
-
-</details>
-
-## FAQ
-
-<details>
-<summary><b>What is claude-obsidian?</b></summary>
-<br />
-
-A free, open-source AI second brain for Obsidian: a personal knowledge management (PKM) and AI note-taking system that builds a knowledge graph of plain Markdown. It is a Claude Code plugin (and a set of Agent Skills for other AI tools) that turns your sources into linked, cited notes, answers questions from them, and keeps the vault healthy over time.
-
-</details>
-
-<details>
-<summary><b>Is it free?</b></summary>
-<br />
-
-Yes. It is MIT licensed with no subscription and no tracking. You use it with your own Claude Code plan, or with another AI tool you already have.
-
-</details>
-
-<details>
-<summary><b>Do I need Obsidian?</b></summary>
-<br />
-
-No, but it is the nicest way to see the result. The vault is plain Markdown, so any editor works. Obsidian adds Graph view, Canvas maps and Bases tables on top.
-
-</details>
-
-<details>
-<summary><b>Is this an Obsidian community plugin?</b></summary>
-<br />
-
-No. You don't install it from Obsidian's community plugin list. It is a Claude Code plugin (and a set of Agent Skills for other AI tools) that works on your vault folder. Obsidian opens the result as a normal vault, and no Obsidian plugin is required.
-
-</details>
-
-<details>
-<summary><b>Does my data leave my computer?</b></summary>
-<br />
-
-Your vault stays on your computer as ordinary files. When you work with it in Claude Code, the notes Claude reads are sent to Claude, Anthropic's model, the same as anything else you open in Claude Code. Web research and remote models are off until you allow them for a task.
-
-</details>
-
-<details>
-<summary><b>Will it mess up my existing notes?</b></summary>
-<br />
-
-It is built not to. Adopting a vault does not move your notes, every change is shown as a plan before it is applied, and an interrupted write can be rolled back. If you edit a note while Claude is working on it, the write stops instead of overwriting you. Keep normal backups anyway.
-
-</details>
-
-<details>
-<summary><b>How is it different from a chat that saves notes?</b></summary>
-<br />
-
-Most AI note tools save text and stop. claude-obsidian keeps the original sources, links every claim back to them, connects new notes to old ones, and checks the vault for broken links and gaps. The knowledge compounds instead of piling up.
-
-</details>
-
-<details>
-<summary><b>Does it work with Codex, Gemini or Cursor?</b></summary>
-<br />
-
-Yes. The skills follow the open Agent Skills format. Claude Code gets the full plugin; Codex, OpenCode, Gemini, ZCode, Cursor and Windsurf link the same skills with one setup script. See [Install](#install).
-
-</details>
-
-<details>
-<summary><b>Good to know: requirements, limits and uninstall</b></summary>
-<br />
-
-**Requirements.** Python 3.11 or newer, a current Claude Code release for the plugin (or another Agent Skills host), Obsidian for the visual side, and Bash for the setup scripts. Git is only needed for development or checkpoints.
-
-**Limits.** It is not an automatic transcript recorder, a cloud sync service or a fact checker, and it does not replace backups. PDFs and web pages need extra tools for full text.
-
-**Uninstall.** Removing the plugin never removes your vault. Your notes, sources and Obsidian settings stay yours: `claude plugin uninstall claude-obsidian@agricidaniel-claude-obsidian`.
-
-</details>
-
-## License and contributing
-
-MIT License, see [LICENSE](LICENSE). The design follows [Andrej Karpathy's LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) and uses [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) as the reference for Obsidian Markdown, Bases and Canvas syntax. See [ATTRIBUTION.md](ATTRIBUTION.md) and [CITATION.cff](CITATION.cff).
-
-Contributions are welcome: read [CONTRIBUTING.md](CONTRIBUTING.md) first and run `make test` before you open a pull request. Report security problems as described in [SECURITY.md](SECURITY.md), and read [PRIVACY.md](PRIVACY.md) for what stays on your machine. Release notes live in the [changelog](CHANGELOG.md), and the [code of conduct](CODE_OF_CONDUCT.md) applies everywhere. AI coding agents working on this repo start at [AGENTS.md](AGENTS.md).
-
-**Thank you** to everyone who has helped. Pull requests: [@Ychris12138](https://github.com/Ychris12138), [@Marcos64s](https://github.com/Marcos64s), [@hphsu](https://github.com/hphsu), [@vinsocci](https://github.com/vinsocci), [@miraclemanza](https://github.com/miraclemanza), [@maartengoet](https://github.com/maartengoet), [@Lion-1209](https://github.com/Lion-1209), [@HectorBernstorff](https://github.com/HectorBernstorff), [@Packetslave](https://github.com/Packetslave), [@CooperSheroy](https://github.com/CooperSheroy), [@yotamleo](https://github.com/yotamleo), [@ketpatil77](https://github.com/ketpatil77), [@tilusnet](https://github.com/tilusnet), [@GPezzuti](https://github.com/GPezzuti), [@STiFLeR7](https://github.com/STiFLeR7). Issue reports: [@RoelKluin](https://github.com/RoelKluin), [@threnard](https://github.com/threnard), [@szrenwei](https://github.com/szrenwei), [@ppuri2](https://github.com/ppuri2), [@cosmos75](https://github.com/cosmos75), [@simonc](https://github.com/simonc).
-
-## Star history
-
-If claude-obsidian helps you, a star helps other people find it.
-
-<p align="center">
-  <a href="https://www.star-history.com/#agricidaniel/claude-obsidian&Date">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=agricidaniel/claude-obsidian&type=Date&theme=dark" />
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=agricidaniel/claude-obsidian&type=Date" />
-      <img src="https://api.star-history.com/svg?repos=agricidaniel/claude-obsidian&type=Date" alt="Star history chart for claude-obsidian: GitHub stars over time" width="720" />
-    </picture>
-  </a>
-</p>
-
-## Author
-
-Built by **[Agrici Daniel](https://agricidaniel.com/about)**, AI Workflow Architect, with help from the [AI Marketing Hub Pro](https://www.skool.com/ai-marketing-hub-pro) community.
-
-<img src="assets/readme/credits.svg" width="1200" height="420" alt="Thanks for playing: the three bots dance around the crystal while the credits for AgriciDaniel and the community contributors crawl into the stars, then CONTINUE? asks you to star the repo." />
-
-<p align="center">
-  <a href="https://www.youtube.com/@AgriciDaniel"><img src="assets/readme/btn-youtube.svg" width="137" height="44" alt="Claude Code tutorials and demos on YouTube" /></a>
-  <a href="https://www.skool.com/ai-marketing-hub"><img src="assets/readme/btn-hub.svg" width="210" height="44" alt="AI Marketing Hub, the free community on Skool" /></a>
-  <a href="https://www.skool.com/ai-marketing-hub-pro"><img src="assets/readme/btn-pro.svg" width="155" height="44" alt="AI Marketing Hub Pro" /></a>
-</p>
+### Agent-Agnostic MCP Server (15 Tools)
+
+Run `smart-vault mcp` directly or register it in any MCP-compatible host (Antigravity, Codex, Claude Code, Gemini, Cursor, Windsurf, OpenCode, ZCode):
+
+```json
+{
+  "mcpServers": {
+    "smart-vault": {
+      "command": "smart-vault",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+Exposed tools (`15`):
+- **Vault (`7`)**: `vault_doctor`, `vault_scan`, `vault_tree`, `vault_lint`, `vault_index`, `vault_query`, `vault_remember`
+- **MemNet (`4`)**: `mesh_status`, `mesh_ask`, `mesh_teach`, `mesh_share`
+- **MemPalace (`4`)**: `palace_status`, `palace_wake_up`, `palace_search`, `palace_mine`
+
+Link `skills/` into any AI host (dry-run by default):
+
+```bash
+smart-vault setup-host --host all
+smart-vault setup-host --host gemini --apply
+smart-vault setup-host --host cursor --workspace /path/to/project --apply
+```
+
+---
+
+## Contracts, Security & Verification
+
+- Agent contract & vault boundaries: [AGENTS.md](AGENTS.md)
+- Vault schema & frontmatter contract: [WIKI.md](WIKI.md)
+- Privacy & security invariants: [PRIVACY.md](PRIVACY.md) · [SECURITY.md](SECURITY.md)
+- Contributing guidelines: [CONTRIBUTING.md](CONTRIBUTING.md)
+
+```bash
+make fmt          # cargo fmt --all --check
+make check-nostd  # cargo check -p smart-vault-core --no-default-features
+make lint         # cargo clippy --workspace --all-targets -- -D warnings -D dead_code -D unused_imports
+make test         # cargo test --workspace + contracts + package validate
+make release      # cargo build --release (fat LTO, target-cpu=native, stripped)
+make sign         # release + macOS codesign + .sha256 sidecar
+make bench        # Criterion microbenchmarks (benches/vault_bench.rs)
+```
+
+---
+
+## Acknowledgments & Built Upon
+
+- **AgriciDaniel & contributors ([`AgriciDaniel/claude-obsidian`](https://github.com/AgriciDaniel/claude-obsidian))** — original MIT-licensed Obsidian LLM Wiki skill suite, vault schema, and transactional safety design (full contributor PR and issue credits in [ATTRIBUTION.md](ATTRIBUTION.md)).
+- **Andrej Karpathy ([`karpathy`](https://github.com/karpathy))** — the LLM Wiki pattern for compounding, source-grounded personal knowledge graphs.
+- **[`8b-is/smart-tree`](https://github.com/8b-is/smart-tree) (`st`)** — AI-compressed directory intelligence and `MEM|8` wave persistence by `8bit-wraith`, `Claude`, `Omni`, and `8b.is-crew`.
+- **[`MemNet`](https://github.com/8b-is/smart-tree)** — sovereign multi-medium mesh and `MEM|8` wave Q&A cache offloading (`st memnet`).
+- **`MemPalace`** — verbatim spatial Wings/Rooms/Drawers memory palace backed by ChromaDB, SQLite, and HNSW (integrated via `smart-vault palace` and [docs/m1-antigravity-mempalace-guide.md](docs/m1-antigravity-mempalace-guide.md)).
+- **[Obsidian](https://obsidian.md) & [`kepano/obsidian-skills`](https://github.com/kepano/obsidian-skills)** — Obsidian Flavored Markdown, JSON Canvas, and Obsidian Bases design references (recorded in [config/upstream-references.json](config/upstream-references.json)).
+- **Pure-Rust Ecosystem** — [`mimalloc`](https://crates.io/crates/mimalloc), [`clap`](https://crates.io/crates/clap), [`rayon`](https://crates.io/crates/rayon), [`memchr`](https://crates.io/crates/memchr), [`serde`](https://crates.io/crates/serde), [`sha2`](https://crates.io/crates/sha2), [`fs2`](https://crates.io/crates/fs2), [`rustc-hash`](https://crates.io/crates/rustc-hash), [`unicode-normalization`](https://crates.io/crates/unicode-normalization), [`walkdir`](https://crates.io/crates/walkdir), and [`criterion`](https://crates.io/crates/criterion) (see [Cargo.toml](Cargo.toml), [crates/smart-vault-core/Cargo.toml](crates/smart-vault-core/Cargo.toml), and [ATTRIBUTION.md](ATTRIBUTION.md)).
+
+---
+
+## License
+
+Licensed under the **MIT License** — see [LICENSE](LICENSE).
+
+Made with `<3` from **8b.is-crew**.

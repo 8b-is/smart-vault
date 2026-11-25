@@ -6,9 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3",
+            "command": "smart-vault",
             "args": [
-              "${CLAUDE_PLUGIN_ROOT}/scripts/claude-obsidian.py",
               "hook",
               "session-start"
             ],
@@ -22,9 +21,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3",
+            "command": "smart-vault",
             "args": [
-              "${CLAUDE_PLUGIN_ROOT}/scripts/claude-obsidian.py",
               "hook",
               "stop"
             ],

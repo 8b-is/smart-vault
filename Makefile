@@ -1,50 +1,49 @@
-# claude-obsidian deterministic developer entry points.
+# smart-vault (pure Rust #![no_std] + ASM + CSR) developer targets — made with <3 from 8b.is-crew
 
-PYTHON ?= python3
-export PYTHONDONTWRITEBYTECODE := 1
-
-.PHONY: help test test-python test-shell test-contracts test-package validate \
-	setup-dragonscale setup-retrieve setup-mode
+.PHONY: help build release check-nostd sign test lint fmt bench validate contracts mcp
 
 help:
-	@echo "claude-obsidian developer targets:"
-	@echo "  make test             Run every hermetic Python and shell test, then contracts"
-	@echo "  make test-python      Run each tests/test_*.py file in isolation"
-	@echo "  make test-shell       Run each tests/test_*.sh file in isolation"
-	@echo "  make test-contracts   Execute canonical product/capability verification"
-	@echo "  make test-package     Validate portable skill, hook, and manifest metadata"
-	@echo "  make validate         Run package and contract validators without the test suite"
-	@echo "  make setup-*          Run an opt-in legacy extension setup helper"
+	@echo "smart-vault developer targets:"
+	@echo "  make build        Compile debug workspace"
+	@echo "  make release      Compile LTO-optimized native release binary"
+	@echo "  make check-nostd  Verify smart-vault-core compiles with --no-default-features"
+	@echo "  make sign         Build release and apply macOS codesign + SHA-256 verification"
+	@echo "  make test         Run all Rust unit & integration tests + contracts"
+	@echo "  make lint         Run workspace clippy with strict dead-code & warning gates"
+	@echo "  make fmt          Check Rust formatting with cargo fmt --all --check"
+	@echo "  make bench        Build & run Criterion benchmarks"
+	@echo "  make validate     Run contract & package validators"
+	@echo "  make mcp          Start stdio MCP server"
 
-test: test-python test-shell test-contracts test-package
-	@echo "All hermetic tests and executable contracts passed."
+build:
+	cargo build --workspace
 
-test-python:
-	@set -eu; for test_file in tests/test_*.py; do \
-		echo "=== $$test_file ==="; \
-		$(PYTHON) "$$test_file"; \
-	done
+release:
+	cargo build --release
 
-test-shell:
-	@set -eu; for test_file in tests/test_*.sh; do \
-		echo "=== $$test_file ==="; \
-		bash "$$test_file"; \
-	done
+check-nostd:
+	cargo check -p smart-vault-core --no-default-features
 
-test-contracts:
-	@$(PYTHON) scripts/claude-obsidian.py contracts --check-only
-	@$(PYTHON) scripts/claude-obsidian.py contracts --verify
+sign: release
+	cargo run --release --quiet -- sign "$$(cargo metadata --no-deps --format-version 1 | sed -n 's/.*"target_directory":"\([^"]*\)".*/\1\/release\/smart-vault/p')" --write-sha256
 
-test-package:
-	@$(PYTHON) scripts/claude-obsidian.py package validate
+test:
+	cargo test --workspace
+	cargo run --quiet -- contracts --repo-root .
+	cargo run --quiet -- package validate --repo-root .
 
-validate: test-contracts test-package
+lint:
+	cargo clippy --workspace --all-targets -- -D warnings -D dead_code -D unused_imports
 
-setup-dragonscale:
-	@bash scripts/setup-dragonscale.sh
+fmt:
+	cargo fmt --all -- --check
 
-setup-retrieve:
-	@bash scripts/setup-retrieve.sh
+bench:
+	cargo bench
 
-setup-mode:
-	@bash scripts/setup-mode.sh
+validate:
+	cargo run --quiet -- contracts --repo-root .
+	cargo run --quiet -- package validate --repo-root .
+
+mcp:
+	cargo run --quiet -- mcp

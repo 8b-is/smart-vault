@@ -6,13 +6,10 @@ REST plugins are optional third-party integrations, never prerequisites.
 
 ## Selection policy
 
-1. Prefer direct filesystem reads for portability and least privilege.
-2. Use the official Obsidian CLI read-only when `detect-transport.sh --peek`
-   reports it usable.
-3. Consider an MCP or REST adapter only when the user needs a capability the
-   first two choices cannot provide and explicitly approves installation.
-4. Keep all vault mutations in a claude-obsidian operation transaction. An
-   external transport must not bypass expected hashes, journaling, or recovery.
+1. Prefer direct filesystem reads or the built-in stdio MCP server (`smart-vault mcp`) for portability and least privilege.
+2. Check Smart Tree & MemNet readiness with `smart-vault doctor --vault "$VAULT"`.
+3. Consider third-party MCP or REST adapters only when the user needs a capability `smart-vault` cannot provide and explicitly approves installation.
+4. Keep all vault mutations in a `smart-vault.transaction.v1` operation transaction. An external transport must not bypass expected hashes, journaling, or recovery.
 
 ## Third-party review
 

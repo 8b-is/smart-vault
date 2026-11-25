@@ -1,0 +1,13 @@
+[package]
+name = "smart-vault-core"
+version = "4.2.0"
+edition = "2021"
+rust-version = "1.75"
+authors = ["8b.is-crew <crew@8b.is>"]
+description = "Zero-allocation #![no_std] kernel for smart-vault: aarch64 ASM/NEON primitives, CSR graph engine, streaming wikilink scanner, and stack TopK BM25 math"
+license = "MIT"
+repository = "https://github.com/peterlodri-sec/claude-obsidian"
+
+[lib]
+name = "smart_vault_core"
+path = "src/lib.rs"

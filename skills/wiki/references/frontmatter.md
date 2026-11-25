@@ -24,7 +24,7 @@ claim_ids:
 ---
 ```
 
-Page types are declared once in `claude_obsidian/page_schema.py` and documented in
+Page types are documented in
 [WIKI.md](../../../WIKI.md). This file previously restated a shorter list that
 omitted `session` and `fold`, which is how a vault ends up carrying values one
 document calls invalid. Statuses are still described in prose in both places and

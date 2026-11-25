@@ -1,0 +1,24 @@
+---
+description: Portable rules for the smart-vault Rust knowledge engine and Obsidian user vaults.
+globs:
+  - "skills/**/SKILL.md"
+  - "src/**/*.rs"
+  - "crates/**/*.rs"
+  - "wiki/**/*.md"
+  - ".raw/**/*"
+alwaysApply: true
+---
+
+# smart-vault
+
+Read `AGENTS.md` as the canonical host-neutral contract. This repository is product source; mutable knowledge belongs in a separately resolved user vault.
+
+- Use `smart-vault` (`sv`) CLI or `smart-vault mcp` tools (`vault_doctor`, `vault_lint`, `vault_query`, `vault_tree`, `vault_remember`, `mesh_*`, `palace_*`).
+- Preview workspace skill linking and apply with explicit consent:
+
+```bash
+smart-vault setup-host --host cursor --workspace "$PWD"
+smart-vault setup-host --host cursor --workspace "$PWD" --apply
+```
+
+Made with `<3` from `8b.is-crew`.

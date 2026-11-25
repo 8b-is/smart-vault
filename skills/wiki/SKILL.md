@@ -1,6 +1,6 @@
 ---
 name: wiki
-description: "Initialize, adopt, and route work for a separate Obsidian knowledge vault through the portable claude-obsidian core. Use for vault setup, scaffolding, workspace selection, cross-project configuration, or choosing the correct wiki sub-skill. Triggers: /wiki, set up wiki, scaffold vault, create knowledge base, adopt this vault, Obsidian vault, second brain setup, persistent wiki."
+description: "Initialize, adopt, and route work for a separate Obsidian knowledge vault through the pure-Rust smart-vault core (#![no_std] CSR graph + aarch64 NEON/ASM, wired into 8b-is/smart-tree, MemNet, and MemPalace). Use for vault setup, scaffolding, workspace selection, cross-project configuration, or choosing the correct wiki sub-skill. Triggers: /wiki, set up wiki, scaffold vault, create knowledge base, adopt this vault, Obsidian vault, second brain setup, persistent wiki."
 ---
 
 # Wiki orchestration
@@ -9,16 +9,14 @@ Treat the installed product as code and the selected user vault as data. Never u
 the plugin/product root as a vault, even when the current directory happens to be
 the product checkout.
 
-Resolve the portable core from this skill's installation and invoke it by absolute
-path:
+Invoke the pure-Rust `smart-vault` CLI directly (or via MCP tools `vault_doctor`, `vault_tree`, `vault_query`, `vault_lint`, `vault_remember`, `mesh_*`, `palace_*`):
 
 ```bash
-CORE=/absolute/product/root/scripts/claude-obsidian.py
-python3 "$CORE" --help
+smart-vault --help
 ```
 
 Resolve a vault in this order: explicit `--vault`,
-`CLAUDE_OBSIDIAN_VAULT`, the nearest `.claude-obsidian.json`, then an
+`SMART_VAULT_ROOT` (or `MEMVAULT_ROOT` / `CLAUDE_OBSIDIAN_VAULT`), the nearest `.smart-vault.json`, `.memvault.json`, or `.claude-obsidian.json`, then an
 unambiguous initialized vault at or above the current directory. Fail closed when
 selection is missing or ambiguous.
 
@@ -32,21 +30,15 @@ Use the deterministic setup commands. Both are dry-run by default.
 For a new, separate vault:
 
 ```bash
-python3 "$CORE" init /absolute/path/to/vault \
-  --generated-at <ISO-UTC> --operation-id init-reviewed
-python3 "$CORE" init /absolute/path/to/vault \
-  --generated-at <ISO-UTC> --operation-id init-reviewed \
-  --approved-plan-sha256 <reviewed-sha256> --apply
+smart-vault init --vault /absolute/path/to/vault
+smart-vault init --vault /absolute/path/to/vault --apply
 ```
 
 For an existing Obsidian vault:
 
 ```bash
-python3 "$CORE" adopt /absolute/path/to/vault \
-  --generated-at <ISO-UTC> --operation-id adopt-reviewed
-python3 "$CORE" adopt /absolute/path/to/vault \
-  --generated-at <ISO-UTC> --operation-id adopt-reviewed \
-  --approved-plan-sha256 <reviewed-sha256> --apply
+smart-vault adopt --vault /absolute/path/to/vault
+smart-vault adopt --vault /absolute/path/to/vault --apply
 ```
 
 Before `--apply`, show the selected path and changed-path preview, then pass
@@ -93,14 +85,9 @@ Use [provenance.md](references/provenance.md) when initializing or changing
 source and claim ledgers. Unsupported evidence stays unsupported; never invent a
 source, quote, date, locator, or confidence.
 
-After a successful apply, report the operation ID and exact changed paths. If the
-user explicitly wants a Git checkpoint, run it separately:
+After a successful apply, report the operation ID and exact changed paths. Check `smart-vault tree --vault /absolute/path/to/vault --mode ai` or sync salient `MEM|8` waves with `smart-vault remember --vault /absolute/path/to/vault`.
 
-```bash
-python3 "$CORE" checkpoint OPERATION_ID --vault /absolute/path/to/vault
-```
-
-On a conflict, re-read and rebuild. On interruption, use `transaction recover`.
+On a conflict, re-read and rebuild. On interruption, use `smart-vault transaction recover --apply`.
 Reuse an operation ID only with the identical bundle.
 
 ## Installation context

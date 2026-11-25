@@ -47,11 +47,11 @@ operation commit.
 
 ## Exact-operation checkpoints
 
-After a successful claude-obsidian transaction, an explicitly requested
-checkpoint is:
+After a successful `smart-vault` transaction, review and commit explicitly with `git`:
 
 ```bash
-python3 "$CORE" checkpoint OPERATION_ID --vault "$VAULT"
+git status && git diff
+git commit -m "vault: operation checkpoint"
 ```
 
 The command verifies recorded hashes, refuses any pre-existing staged state,

@@ -14,13 +14,10 @@ Answer design and syntax questions read-only. For a requested `.base` edit,
 resolve the user vault and use one inspected transaction; never write the file
 directly.
 
-Resolve the installed product root from this skill's own location, not from the
-vault or current working directory:
+Verify vault selection with `smart-vault`:
 
 ```bash
-PRODUCT_ROOT=/absolute/path/to/installed/claude-obsidian
-CORE="$PRODUCT_ROOT/scripts/claude-obsidian.py"
-test -f "$CORE"
+smart-vault doctor --vault "$VAULT"
 ```
 
 Every `../wiki/references/` link in this file resolves the same way, relative
@@ -45,8 +42,8 @@ selected vault's `wiki/` directory.
    review and apply once:
 
    ```bash
-   python3 "$CORE" transaction inspect "$BUNDLE" --vault "$VAULT"
-   python3 "$CORE" transaction apply "$BUNDLE" --vault "$VAULT" \
+   smart-vault transaction inspect "$BUNDLE" --vault "$VAULT"
+   smart-vault transaction apply "$BUNDLE" --vault "$VAULT" \
      --approved-plan-sha256 "$APPROVAL_SHA256"
    ```
 8. Record static validation separately from native Obsidian rendering. Follow

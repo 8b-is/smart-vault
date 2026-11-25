@@ -8,36 +8,29 @@ One logical operation produces one versioned transaction bundle and one
 recoverable apply. Parallel workers may read and draft, but only the
 orchestrator applies vault mutations.
 
-Resolve the installed product root from the invoking skill's own location, not
-from the user-vault working directory:
+Invoke the pure-Rust `smart-vault` core (`--vault`, `SMART_VAULT_ROOT`, `MEMVAULT_ROOT`, or CWD discovery):
 
 ```bash
-PRODUCT_ROOT=/absolute/path/to/installed/claude-obsidian
-CORE="$PRODUCT_ROOT/scripts/claude-obsidian.py"
-test -f "$CORE"
+smart-vault --help
 ```
-
-Never use the deprecated per-file `wiki-lock.sh` helper for new work. Never
-commit from a generic lifecycle hook.
 
 ## Workflow
 
-1. Resolve a user vault. Prefer `--vault`, then `CLAUDE_OBSIDIAN_VAULT`, then
-   `.claude-obsidian.json`, then unambiguous current-directory discovery.
+1. Resolve a user vault. Prefer `--vault`, then `SMART_VAULT_ROOT` / `MEMVAULT_ROOT` / `CLAUDE_OBSIDIAN_VAULT`, then `.smart-vault.json` / `.memvault.json` / `.claude-obsidian.json`, then unambiguous current-directory discovery.
 2. Read every expected target and record its SHA-256, or `null` when it must be
    absent.
 3. Have workers return drafts and evidence. Workers do not edit shared vault
    state.
-4. Build one `claude-obsidian.transaction.v1` JSON bundle.
-5. Run `python3 "$CORE" transaction inspect BUNDLE --vault VAULT`.
+4. Build one `smart-vault.transaction.v1` JSON bundle.
+5. Run `smart-vault transaction inspect BUNDLE --vault VAULT`.
 6. Show destructive, external, or canonical-merge proposals to the user before
    applying them.
 7. Pass the inspect result's exact `approval_sha256`, which binds the expanded
    plan to the canonical resolved vault root and cannot be reused for another
    vault:
-   `python3 "$CORE" transaction apply BUNDLE --vault VAULT --approved-plan-sha256 HASH`.
+   `smart-vault transaction apply BUNDLE --vault VAULT --approved-plan-sha256 HASH`.
 8. Report the resulting operation ID and changed paths.
-9. If the user wants Git history, run the separate explicit checkpoint command.
+9. Checkpointing with Git is explicit and separate (`git status && git commit`).
 
 ## Bundle shape
 
@@ -127,13 +120,9 @@ Windows or Git Bash (setup and troubleshooting: `docs/windows-wsl.md`).
 
 ## Explicit checkpoint
 
-```bash
-python3 "$CORE" checkpoint OPERATION_ID --vault VAULT \
-  --as-of YYYY-MM-DD
-```
+Review and commit explicitly with `git` after verifying lint (`smart-vault lint --vault VAULT`):
 
-Checkpointing is never automatic. It refuses all pre-existing staged state,
-verifies the candidate tree's blob bytes against transaction hashes, runs
-deterministic lint by default, and excludes raw source payloads unless the user
-explicitly opts in. `--as-of` pins and records the UTC provenance audit date; a
-pending record resumes the same commit and pinned date after interruption.
+```bash
+git status && git diff
+git commit -m "vault: reviewed operation"
+```

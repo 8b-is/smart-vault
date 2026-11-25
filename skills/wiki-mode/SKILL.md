@@ -11,29 +11,10 @@ the file exists but is invalid, fail closed and repair it through a reviewed
 configuration operation before suggesting routes; never silently substitute
 Generic for corrupt user configuration.
 
-Resolve the installed product root from this skill's own location, not from the
-vault or current working directory:
+Resolve the vault explicitly with `smart-vault`:
 
 ```bash
-PRODUCT_ROOT=/absolute/path/to/installed/claude-obsidian
-CORE="$PRODUCT_ROOT/scripts/claude-obsidian.py"
-MODE_HELPER="$PRODUCT_ROOT/scripts/wiki-mode.py"
-test -f "$CORE" && test -f "$MODE_HELPER"
-```
-
-Every `../wiki/references/` link in this file resolves the same way, relative
-to this skill's own directory under `$PRODUCT_ROOT`, never relative to the
-selected vault's `wiki/` directory.
-
-## Read and route safely
-
-Always select the vault explicitly:
-
-```bash
-python3 "$MODE_HELPER" --vault "$VAULT" get
-python3 "$MODE_HELPER" --vault "$VAULT" config
-python3 "$MODE_HELPER" --vault "$VAULT" route concept "Concept name"
-python3 "$MODE_HELPER" --vault "$VAULT" route source "Source title"
+smart-vault mode --vault "$VAULT" get
 ```
 
 The helper validates the selected vault, confines paths, sanitizes names, and
@@ -53,7 +34,7 @@ Use the templates as structural guidance: [LYT atomic](templates/lyt/atomic-temp
 [PARA project](templates/para/project-template.md),
 [PARA resource](templates/para/resource-template.md), or
 [Zettelkasten atomic](templates/zettel/atomic-template.md). They use canonical
-`type` values from `claude_obsidian/page_schema.py` and a separate flat
+`type` values documented in `WIKI.md` and a separate flat
 `methodology_role` property:
 
 | Template | Type | Methodology role |
@@ -86,23 +67,17 @@ A mode change is one configuration operation, dry-run first:
    current target hash and limits the write to `.vault-meta/mode.json`:
 
    ```bash
-   python3 "$CORE" mode set "$MODE" --vault "$VAULT" \
-     --generated-at "$GENERATED_AT" --operation-id "$OPERATION_ID"
+   smart-vault mode --vault "$VAULT" set "$MODE"
    ```
 
-5. Show the old mode, new mode, exact changed path, and complete preview. Copy
-   its `approved_plan_sha256` only after review.
-6. Apply by regenerating that exact vault-bound plan:
+5. Show the old mode, new mode, exact changed path, and complete preview.
+6. Apply after review:
 
    ```bash
-   python3 "$CORE" mode set "$MODE" --vault "$VAULT" \
-     --generated-at "$GENERATED_AT" --operation-id "$OPERATION_ID" \
-     --approved-plan-sha256 "$APPROVAL_SHA256" --apply
+   smart-vault mode --vault "$VAULT" set "$MODE" --apply
    ```
 
 Follow the [operation transaction contract](../wiki/references/operation-transactions.md).
-Do not use `scripts/wiki-mode.py`'s legacy direct-write `set` action or a setup
-script to bypass this workflow.
 
 Changing mode affects routing for future operations only. Never bulk-create
 folders, move notes, rewrite wikilinks, or migrate existing pages as a side

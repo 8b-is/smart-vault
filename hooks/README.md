@@ -6,9 +6,7 @@ Hooks require a current Claude Code release: the exec-form `command` and
 `args` hook shape and the `compact` and `fork` `SessionStart` matchers used below
 need it
 (see the [Claude Code hooks contract](https://code.claude.com/docs/en/hooks)).
-Both hooks also need an interpreter reachable as `python3` on `PATH`; see the
-[Windows and WSL guide](../docs/windows-wsl.md#claude-code-hooks-and-python3-on-windows)
-for native Windows setup.
+Both hooks call the compiled `smart-vault` Rust binary directly (`smart-vault hook session-start` / `smart-vault hook stop`) with zero Python or Bash dependencies.
 
 | Event | Matcher | Behavior |
 |---|---|---|

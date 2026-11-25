@@ -7,6 +7,25 @@ implementation record for older releases.
 
 ## [Unreleased]
 
+## [4.2.0] - 2026-11-25
+
+Rebuilds the former Python/Bash `claude-obsidian` project into **`smart-vault`** (`8b-is/smart-vault`, short alias `sv`), a 100% pure-Rust, agent-agnostic Obsidian knowledge-graph engine made with `<3` from **8b.is-crew**.
+
+### Added & Changed
+- **Zero-allocation `#![no_std]` kernel (`crates/smart-vault-core`)**:
+  - `aarch64` inline ASM & NEON SIMD primitives (`ct_eq_bytes`, `ctz_u64` via `rbit`/`clz`, `popcnt_u64`, `simd_contains_byte`, `simd_ascii_lowercase_in_place`, `fnv1a_64`).
+  - Zero-alloc `CsrGraph`, iterative Tarjan SCC cycle detection, ping-pong PageRank hub scoring, streaming wikilink/frontmatter scanners, IEEE-754 BM25+ math, and stack-allocated `TopK<K>`.
+- **High-performance Rust runtime (`src/`)**:
+  - `mimalloc` global allocator across both binary (`smart-vault`) and Criterion benchmark harness (`benches/vault_bench.rs`), plus fat LTO and `-Wl,-dead_strip` / `-Wl,--gc-sections`.
+  - Parallel `rayon` vault scanning, CSR graph linting (`lint_vault` `GraphMetrics` + `HubScore`), Unicode NFD + CJK n-gram BM25+ indexing, and SHA-256 approval-pinned atomic transactions under `fs2` locking.
+- **Native Smart Tree, MemNet & MemPalace stack + 15-tool MCP server**:
+  - Direct integration with `8b-is/smart-tree` (`st` / `st remember` `MEM|8` wave memory), `MemNet` wave Q&A offloading (`st memnet ask|teach|share`), and `MemPalace` (`status|wake-up|search|mine|export|daemon`).
+  - Agent-agnostic stdio JSON-RPC 2.0 MCP server (`smart-vault mcp`) exposing 15 tools (`vault_*`, `mesh_*`, `palace_*`) and universal `setup-host` linking for Antigravity, Codex, Claude Code, Gemini, OpenCode, Cursor, Windsurf, and ZCode.
+- **Safe binary signing & automated M1 global installer**:
+  - Added `smart-vault sign` and `smart-vault verify-binary [--sha256 <hex>]` using macOS `/usr/bin/codesign`, constant-time SHA-256 verification, and `.sha256` sidecars.
+  - Added `smart-vault setup-global [--apply]` to install signed `~/.local/bin/smart-vault` + `sv` symlink, merge `~/.gemini/config/mcp_config.json` & `~/.gemini/settings.json` (`0600` permissions, zero duplicate hooks), and link `~/.gemini/config/skills/smart-vault`.
+- **Removed legacy Python/Bash scripts** (`claude_obsidian/`, `scripts/`, Python test suite) and updated GitHub Actions CI + CodeQL (Rust) + Dependabot (`cargo` + `github-actions`).
+
 ## [3.0.1] - 2026-10-21
 
 Restores the Claude plugin name `claude-obsidian`, so commands are

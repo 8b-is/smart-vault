@@ -8,13 +8,10 @@ description: Create, inspect, and update Obsidian JSON Canvas boards with text, 
 Treat a canvas as a vault-scoped JSON Canvas document. Keep reads read-only and
 route every requested mutation through one recoverable transaction.
 
-Resolve the installed product root from this skill's own location, not from the
-vault or current working directory:
+Verify vault selection with `smart-vault`:
 
 ```bash
-PRODUCT_ROOT=/absolute/path/to/installed/claude-obsidian
-CORE="$PRODUCT_ROOT/scripts/claude-obsidian.py"
-test -f "$CORE"
+smart-vault doctor --vault "$VAULT"
 ```
 
 Every `../wiki/references/` link in this file resolves the same way, relative
@@ -128,9 +125,9 @@ Read [operation-transactions.md](../wiki/references/operation-transactions.md),
 then inspect the bundle before applying it:
 
 ```bash
-python3 "$CORE" transaction inspect BUNDLE --vault VAULT
+smart-vault transaction inspect BUNDLE --vault VAULT
 # Set APPROVAL_SHA256 to the inspect result's approval_sha256 after review.
-python3 "$CORE" transaction apply BUNDLE --vault VAULT \
+smart-vault transaction apply BUNDLE --vault VAULT \
   --approved-plan-sha256 "$APPROVAL_SHA256"
 ```
 

@@ -9,7 +9,7 @@
 **Authors:** 8b.is-crew (`8bit-wraith`, `Claude`, `Omni`, `peterlodri-sec`, and the 8b.is team)
 **Repositories:**
 - https://github.com/8b-is/smart-tree
-- https://github.com/peterlodri-sec/claude-obsidian
+- https://github.com/8b-is/smart-vault
 
 **Use:** 100% pure-Rust `smart-vault` workspace (`crates/smart-vault-core/` `#![no_std]` kernel + `src/`), `aarch64` inline ASM & NEON SIMD byte kernels, CSR graph representation with iterative Tarjan SCC & PageRank hub scoring, `rayon` parallel BM25+ indexing & graph linting, `mimalloc` global allocator, macOS `codesign` + constant-time SHA-256 verification, SHA-256 approval-pinned transactions under `fs2` locking, stdio JSON-RPC 2.0 MCP server (15 tools), lifecycle hook integration, automated M1 global installer (`setup-global`), and native `st` + `st memnet` (`MEM|8` wave persistence, Q&A cache offloading, and peer folder sharing) integration.
 

@@ -11,10 +11,10 @@
         "url": "https://8b.is"
       },
       "description": "Agent-agnostic, pure-Rust #![no_std]-core second brain for Obsidian wired into 8b-is/smart-tree, MemNet, and MemPalace.",
-      "homepage": "https://github.com/peterlodri-sec/claude-obsidian",
+      "homepage": "https://github.com/8b-is/smart-vault",
       "license": "MIT",
       "name": "smart-vault",
-      "repository": "https://github.com/peterlodri-sec/claude-obsidian",
+      "repository": "https://github.com/8b-is/smart-vault",
       "source": "./"
     }
   ],

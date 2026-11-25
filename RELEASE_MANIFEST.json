@@ -10,14 +10,14 @@
     {
       "mode": "0644",
       "path": ".claude-plugin/marketplace.json",
-      "sha256": "91f5ecc5f713f637c45569c13f542cc4b9ce17ced5f25641740d4fb3e4b044c3",
-      "size": 846
+      "sha256": "20784ced3bcdb3281c6e10c9de151b028529a7c3f4a8286a5b9bc7a73f5d5d0b",
+      "size": 820
     },
     {
       "mode": "0644",
       "path": ".claude-plugin/plugin.json",
-      "sha256": "ec47bf6a4422b231cf9fba1e7ab0f0b8469c578def9098a7098adfbcc54ba993",
-      "size": 866
+      "sha256": "48c78e4547324dc351d2d7a64e856c3302832122ca072c3a36df544fda12b7f8",
+      "size": 840
     },
     {
       "mode": "0644",
@@ -100,8 +100,8 @@
     {
       "mode": "0644",
       "path": "ATTRIBUTION.md",
-      "sha256": "bb21f8409bc44402085ffbb8a5c7197025564251ee10f143fd898ea364ab5225",
-      "size": 11272
+      "sha256": "3350353b6f4509187fe3489a11588da6b6b4abfedcea1ac4cabaec28a4f9e77d",
+      "size": 11259
     },
     {
       "mode": "0644",
@@ -112,8 +112,8 @@
     {
       "mode": "0644",
       "path": "CITATION.cff",
-      "sha256": "65c0968db30a8cc96efc627b7ba43ecaec5ad5da582a12e1511fffee08daeb63",
-      "size": 540
+      "sha256": "97e0f9a58348066b8429fe9857c494d043e9305d0d3fc6e6f2ca5f7b3fcfa027",
+      "size": 514
     },
     {
       "mode": "0644",
@@ -142,8 +142,8 @@
     {
       "mode": "0644",
       "path": "Cargo.toml",
-      "sha256": "86f47e11986015f6def9369cd4949f9635ec0ceaff3f5ce543a381d0e68afd7b",
-      "size": 1504
+      "sha256": "100c7a71e2b225a53c4af9141ba66092b3a6f258f68f9b36b6620a45b352f8a1",
+      "size": 1491
     },
     {
       "mode": "0644",
@@ -340,8 +340,8 @@
     {
       "mode": "0644",
       "path": "config/public-marketplace.json",
-      "sha256": "91f5ecc5f713f637c45569c13f542cc4b9ce17ced5f25641740d4fb3e4b044c3",
-      "size": 846
+      "sha256": "20784ced3bcdb3281c6e10c9de151b028529a7c3f4a8286a5b9bc7a73f5d5d0b",
+      "size": 820
     },
     {
       "mode": "0644",
@@ -358,8 +358,8 @@
     {
       "mode": "0644",
       "path": "crates/smart-vault-core/Cargo.toml",
-      "sha256": "c3a2d542e07e00878fbd8318882de83b79f8ca72b8c2a458be750bc2d58daa50",
-      "size": 432
+      "sha256": "14ae67f637174450897b717cccc50d19daaebf608278a39b274530dc56ef6509",
+      "size": 419
     },
     {
       "mode": "0644",
@@ -1235,7 +1235,7 @@
     }
   },
   "schema_version": 1,
-  "source_commit": "2e545563172f97f02ecaaaab376ceea1246a0583",
-  "source_date_epoch": 1795607458,
+  "source_commit": "e8f4cdd90bdad758180874736f9cdb4e827f0764",
+  "source_date_epoch": 1795637375,
   "version": "4.2.0"
 }

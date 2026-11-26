@@ -33,7 +33,7 @@ test:
 	cargo run --quiet -- package validate --repo-root .
 
 lint:
-	cargo clippy --workspace --all-targets -- -D warnings -D dead_code -D unused_imports
+	cargo clippy --workspace --all-targets -- -D warnings -D dead_code -D unused_imports -D clippy::redundant_clone -D clippy::needless_collect -D clippy::map_unwrap_or
 
 fmt:
 	cargo fmt --all -- --check

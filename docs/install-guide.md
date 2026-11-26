@@ -1,302 +1,174 @@
-# Install claude-obsidian
+# Install `smart-vault` (`8b-is/smart-vault`)
 
-claude-obsidian has two independent parts:
+`smart-vault` (`sv`) separates product binaries/skills cleanly from your user-owned Obsidian vaults:
 
-1. the product package (skills, portable core, Claude adapter, and templates);
-2. a user-owned Obsidian vault containing mutable knowledge.
+1. **The product runtime** — single statically optimized Rust binary (`smart-vault`, short alias `sv`), zero-alloc `#![no_std]` kernel (`crates/smart-vault-core`), portable `skills/`, and agent host configs.
+2. **A user Obsidian vault** — separate directory holding `.smart-vault.json` (or legacy `.memvault.json` / `.claude-obsidian.json`), `inbox/`, `.raw/`, `wiki/`, and `.vault-meta/`.
 
-Do not use an installed plugin cache as the vault. A source clone is suitable
-for development, but a normal user vault should be a separate directory.
+Never treat the source clone or plugin cache directory as a user vault.
+
+---
 
 ## Requirements
 
-- Python 3.11 or newer
-- an Agent Skills compatible host, or Claude Code for the plugin adapter
-- Obsidian when you want its visual editor
-- Bash for installer and optional legacy-extension scripts
-- Git only for source development, release builds, or explicit checkpoints
-- On Windows: WSL for vault writes; native Windows supports read-only
-  inspection and dry-runs, see the [Windows and WSL guide](windows-wsl.md)
+- **Zero Python or Bash runtime required** for core vault operations, indexing, CSR graph linting, transactions, hooks, or the 15-tool MCP server.
+- **Rust toolchain (`>= 1.75`)** only if building from source (pre-built signed `aarch64-apple-darwin` release archives are published on [GitHub Releases](https://github.com/8b-is/smart-vault/releases)).
+- **Optional ecosystem binaries** (graceful pure-Rust fallback when absent):
+  - `st` (`8b-is/smart-tree`) for AI-compressed trees and `.m8` wave checkpoints (`MemNet` `st memnet`).
+  - `mempalace` / `mempalace-mcp` for spatial drawer search, mining, and daemon acceleration.
+- **Obsidian** when browsing or editing the resulting vault visually.
 
-## Claude Code marketplace
+---
 
-Add the public catalog and install the namespaced plugin:
+## Option 1: Install Pre-Built Signed Release Binary (macOS Apple Silicon)
 
-```bash
-claude plugin marketplace add AgriciDaniel/claude-obsidian
-claude plugin install claude-obsidian@agricidaniel-claude-obsidian
-claude plugin list
-```
-
-Upgrading from 2.x or 3.0.0? See [Upgrade and rollback](#upgrade-and-rollback).
-
-A private development tree that holds contributor-vault state has no
-`.claude-plugin/marketplace.json`; it can contain contributor-vault state and
-must not be added as a marketplace. The deterministic release builder injects
-that manifest only into its audited output. The public default branch must be
-promoted from the extracted audited artifact before these marketplace commands
-are advertised for a new version.
-
-Invoke skills as `/claude-obsidian:wiki`,
-`/claude-obsidian:wiki-ingest`, and `/claude-obsidian:save`.
-
-The plugin cache contains read-only product assets. Run Claude from the user
-vault, set `CLAUDE_OBSIDIAN_VAULT`, or pass `--vault` to portable commands.
-
-## Local Claude plugin development
-
-From a product clone:
+Download the tarball and `.sha256` checksum from [GitHub Releases](https://github.com/8b-is/smart-vault/releases), verify the archive digest, extract, and verify the binary signature:
 
 ```bash
-claude --plugin-dir <product-repository>
+curl -fsSLO https://github.com/8b-is/smart-vault/releases/latest/download/smart-vault-v4.3.0-aarch64-apple-darwin.tar.gz
+curl -fsSLO https://github.com/8b-is/smart-vault/releases/latest/download/smart-vault-v4.3.0-aarch64-apple-darwin.tar.gz.sha256
+shasum -a 256 -c smart-vault-v4.3.0-aarch64-apple-darwin.tar.gz.sha256
+
+mkdir -p ~/.local/bin
+tar -xzf smart-vault-v4.3.0-aarch64-apple-darwin.tar.gz -C ~/.local/bin
+ln -sf ~/.local/bin/smart-vault ~/.local/bin/sv
+
+codesign --verify --deep --strict --verbose=2 ~/.local/bin/smart-vault
+smart-vault verify-binary ~/.local/bin/smart-vault --sha256 "$(awk '{print $1}' ~/.local/bin/smart-vault.sha256)"
 ```
 
-This mode is for testing uninstalled changes. Skills remain namespaced. It does
-not convert the product repository into a user vault.
+---
 
-## Portable Agent Skills hosts
-
-The installer defaults to a no-write preview for Codex, OpenCode, and Gemini:
+## Option 2: Build & Install from Source
 
 ```bash
-bash scripts/setup-multi-agent.sh
-bash scripts/setup-multi-agent.sh --apply
+git clone https://github.com/8b-is/smart-vault.git
+cd smart-vault
+
+# Compile LTO-optimized native release binary and install to ~/.cargo/bin
+cargo build --release
+cargo install --path . --locked
+
+# Sign & emit a .sha256 sidecar (macOS codesign + constant-time SHA-256)
+cargo run --release --quiet -- sign ~/.cargo/bin/smart-vault --write-sha256
 ```
 
-It links each canonical `skills/<name>/` directory into the host's direct
-`<skill-root>/<name>/SKILL.md` discovery layout. Destinations are created only
-when absent; an existing skill or link is never replaced. Check readiness
-without writing:
+---
+
+## Option 3: Automated M1 Global Setup (Antigravity IDE + CLI + MemPalace)
+
+See [M1 Antigravity + MemPalace Guide](m1-antigravity-mempalace-guide.md) for the complete walkthrough:
 
 ```bash
-bash scripts/setup-multi-agent.sh --check
+# Dry-run preview (writes nothing)
+smart-vault setup-global --repo-root /path/to/smart-vault
+
+# Apply globally: installs signed ~/.local/bin/smart-vault + sv symlink,
+# merges ~/.gemini/config/mcp_config.json & ~/.gemini/settings.json (preserving 0600 perms),
+# and links ~/.gemini/config/skills/smart-vault
+smart-vault setup-global --repo-root /path/to/smart-vault --apply
 ```
 
-Cursor and Windsurf use workspace-local discovery and require an explicit
-workspace:
+---
+
+## Portable Agent Host Skill Linking (`setup-host`)
+
+Preview linking canonical `skills/` directories into any supported agent host (writes nothing until `--apply` is passed):
 
 ```bash
-bash scripts/setup-multi-agent.sh --host cursor --host windsurf \
-  --workspace <workspace> --apply
+smart-vault setup-host --host all
+smart-vault setup-host --host gemini --apply
+smart-vault setup-host --host codex --apply
+smart-vault setup-host --host claude --apply
+smart-vault setup-host --host opencode --apply
+smart-vault setup-host --host zcode --apply
+smart-vault setup-host --host cursor --workspace /path/to/project --apply
+smart-vault setup-host --host windsurf --workspace /path/to/project --apply
 ```
 
-ZCode is opt-in and user-level (no `--workspace` needed):
+Add the stdio MCP server in any MCP host configuration:
+
+```json
+{
+  "mcpServers": {
+    "smart-vault": {
+      "command": "smart-vault",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+---
+
+## Create or Adopt an Obsidian Vault
+
+All setup commands preview changes by default and require explicit `--apply`:
 
 ```bash
-bash scripts/setup-multi-agent.sh --host zcode
-bash scripts/setup-multi-agent.sh --host zcode --apply
+# New vault
+smart-vault init --vault /path/to/my-vault
+smart-vault init --vault /path/to/my-vault --apply
+
+# Adopt an existing Obsidian vault non-destructively
+smart-vault adopt --vault /path/to/existing-vault
+smart-vault adopt --vault /path/to/existing-vault --apply
 ```
 
-You can also create equivalent per-skill links manually. For each `<name>` under
-the product's `skills/` directory, link that directory at:
+The scaffolded vault includes:
+- `.smart-vault.json` — workspace manifest (`smart-vault.workspace.v1`)
+- `.gitignore` — excludes `.vault-meta/` runtime state and Obsidian workspace caches
+- `inbox/` — source intake folder
+- `.raw/` — immutable create-only source payloads + `.manifest.json`
+- `wiki/` — `index.md`, `log.md`, `hot.md`, `overview.md`, and structured note directories
+- `.obsidian/` — minimal non-destructive Obsidian defaults
 
-```text
-Codex:     ~/.agents/skills/<name>          -> <product-repository>/skills/<name>
-OpenCode:  ~/.config/opencode/skills/<name> -> <product-repository>/skills/<name>
-Gemini:    ~/.gemini/skills/<name>          -> <product-repository>/skills/<name>
-ZCode:     ~/.zcode/skills/<name>           -> <product-repository>/skills/<name>
-Cursor:    <workspace>/.cursor/skills/<name>   -> <product-repository>/skills/<name>
-Windsurf:  <workspace>/.windsurf/skills/<name> -> <product-repository>/skills/<name>
-```
+---
 
-## Create a new vault
+## Vault Selection Precedence
 
-Review the initialization plan first:
-
-```bash
-python3 scripts/claude-obsidian.py init <new-vault> \
-  --generated-at <ISO-UTC> --operation-id init-reviewed
-```
-
-Apply the same operation only after the destination and changed paths look
-correct:
-
-```bash
-python3 scripts/claude-obsidian.py init <new-vault> \
-  --generated-at <ISO-UTC> --operation-id init-reviewed \
-  --approved-plan-sha256 <reviewed-sha256> --apply
-```
-
-The generated vault contains:
-
-- `.gitignore`, privacy-safe defaults excluding `.vault-meta/` runtime state,
-  Obsidian workspace state, and live `.mcp.json` launch configuration;
-- `.claude-obsidian.json`, workspace identity and vault selection;
-- `inbox/`, visible source intake;
-- `.raw/`, immutable source payloads and legacy delta manifest;
-- `wiki/`, index, log, hot cache, overview, and generated notes;
-- `.obsidian/`, minimal non-destructive Obsidian defaults;
-- `.vault-meta/`, ignored runtime state created when needed.
-
-Initialization does not add an upstream Git remote or install community
-plugins. Open the new directory through Obsidian's vault picker.
-
-## Adopt an existing vault
-
-Adoption scans an existing Obsidian directory and proposes only missing product
-metadata and foundation files:
-
-```bash
-python3 scripts/claude-obsidian.py adopt <existing-vault> \
-  --generated-at <ISO-UTC> --operation-id adopt-reviewed
-python3 scripts/claude-obsidian.py adopt <existing-vault> \
-  --generated-at <ISO-UTC> --operation-id adopt-reviewed \
-  --approved-plan-sha256 <reviewed-sha256> --apply
-```
-
-It preserves existing notes and Obsidian JSON. `--force` is intentionally
-separate and should be used only after inspecting replacement targets.
-
-For older claude-obsidian layouts, add provenance ledgers and workspace config
-with an additive migration:
-
-```bash
-python3 scripts/claude-obsidian.py migrate --vault <existing-vault> \
-  --generated-at <ISO-UTC> --operation-id migrate-reviewed
-python3 scripts/claude-obsidian.py migrate --vault <existing-vault> \
-  --generated-at <ISO-UTC> --operation-id migrate-reviewed \
-  --approved-plan-sha256 <reviewed-sha256> --apply
-```
-
-Migration is idempotent, does not infer claims from prose, and leaves the
-legacy `.raw/.manifest.json` byte-for-byte unchanged.
-
-## Vault selection
-
-Mutable commands use this precedence:
+`smart-vault` resolves the active vault in this order and fails closed when ambiguous or inside the product source root:
 
 1. `--vault <path>`
-2. `CLAUDE_OBSIDIAN_VAULT`
-3. nearest `.claude-obsidian.json`
-4. nearest unambiguous initialized vault from the current directory
+2. `SMART_VAULT_ROOT`
+3. Legacy `MEMVAULT_ROOT` / `CLAUDE_OBSIDIAN_VAULT`
+4. Nearest `.smart-vault.json`, `.memvault.json`, `.claude-obsidian.json`, `.vault-meta/`, or `wiki/index.md` walking upward from `CWD`
 
-If selection fails, the command exits without mutation. The product/plugin root
-is rejected as an implicit vault.
-
-Verify a selected vault:
+Verify vault readiness anytime:
 
 ```bash
-python3 scripts/claude-obsidian.py doctor --vault <vault>
-python3 scripts/claude-obsidian.py contracts --verify --vault <vault>
+smart-vault doctor --vault /path/to/my-vault
+smart-vault lint --vault /path/to/my-vault --format markdown
 ```
 
-Doctor checks metadata directory safety and write/search permissions without
-creating files. A missing `.vault-meta` is ready only when the vault directory
-permits its creation. Readiness is a point-in-time diagnostic; transactions
-still recheck paths, conflicts and permissions before applying changes.
+---
 
-## Optional configuration
+## Transactions, Recovery & Checkpoints
 
-The portable filesystem transport always remains available. Detect an active,
-supported Obsidian CLI without persisting a snapshot:
+All shared vault writes flow through SHA-256 approval-pinned bundles locked via `fs2` on `.vault-meta/mutation.lock`:
 
 ```bash
-bash scripts/detect-transport.sh --peek --vault <vault>
+# Inspect plan and compute approval SHA-256
+smart-vault transaction inspect bundle.json --vault /path/to/my-vault
+
+# Apply only after reviewing the exact plan digest
+smart-vault transaction apply bundle.json --vault /path/to/my-vault --approved-plan-sha256 <sha256>
+
+# Inspect or recover incomplete pre-image journals after an interruption
+smart-vault transaction recover --vault /path/to/my-vault
+smart-vault transaction recover --vault /path/to/my-vault --apply
 ```
 
-Optional extensions are explicit and vault-scoped:
-
-```bash
-bash scripts/setup-mode.sh --vault <vault>
-bash scripts/setup-retrieve.sh --vault <vault>
-bash scripts/setup-dragonscale.sh --vault <vault>
-```
-
-Read each script's preview before applying. Retrieval may use local BM25 alone;
-model-based contextual prefixes or remote endpoints require explicit egress
-consent. Optional tools such as Ollama and defuddle are capability-detected.
-
-## First operation
-
-Place a source in `inbox/`. Inspect the byte-capture plan:
-
-```bash
-python3 scripts/claude-obsidian.py capture plan --vault <vault>
-```
-
-Create immutable content-addressed copies only when the plan is correct:
-
-```bash
-python3 scripts/claude-obsidian.py capture apply --vault <vault> \
-  --generated-at <ISO-UTC> --operation-id capture-reviewed
-python3 scripts/claude-obsidian.py capture apply --vault <vault> \
-  --generated-at <ISO-UTC> --operation-id capture-reviewed \
-  --approved-plan-sha256 <reviewed-sha256> --apply
-```
-
-Then invoke the host's `wiki-ingest` skill. Image, PDF, and EPUB semantic
-extraction is not built into the core; those formats currently receive bounded
-metadata unless a separately configured adapter is explicitly approved.
-
-## Upgrade and rollback
-
-The Claude plugin is `claude-obsidian`, and its commands are
-`/claude-obsidian:*`. From 2.x, update it as usual:
-
-```bash
-claude plugin marketplace update agricidaniel-claude-obsidian
-claude plugin update claude-obsidian@agricidaniel-claude-obsidian
-```
-
-Version 3.0.0 alone was named `agricidaniel-obsidian`. If you installed it,
-the marketplace `renames` map moves you back, then you install once:
-
-```bash
-claude plugin marketplace update agricidaniel-claude-obsidian
-claude plugin install claude-obsidian@agricidaniel-claude-obsidian
-```
-
-Restart Claude Code after either path. Managed settings that name
-`agricidaniel-obsidian` need an administrator change. See the
-[namespace migration](namespace-migration.md) for verification and rollback.
-
-Upgrade product code independently from the user vault. Before a migration or
-large ingest, make a normal backup or snapshot. Knowledge writes are journaled;
-run recovery after an interrupted operation:
-
-```bash
-python3 scripts/claude-obsidian.py transaction recover --vault <vault>
-```
-
-Recovery conservatively preserves stale or foreign lock identities. Only after
-confirming no writer is active may an operator add `--force-stale-lock`.
-
-Git history is optional and never automatic. To checkpoint exactly one
-completed transaction:
-
-```bash
-python3 scripts/claude-obsidian.py checkpoint <operation-id> --vault <vault> \
-  --as-of YYYY-MM-DD
-```
-
-Checkpointing uses a temporary index, verifies exact Git blob bytes, refuses
-pre-existing staged state, and resumes an interrupted ref/index finalization
-from its vault-local pending record.
-
-## Uninstall
-
-Remove the host integration, not the vault:
-
-```bash
-claude plugin uninstall claude-obsidian@agricidaniel-claude-obsidian
-claude plugin marketplace remove agricidaniel-claude-obsidian
-```
-
-For portable hosts, remove only the per-skill links that the installer reported.
-User notes, sources, ledgers, and Obsidian settings remain untouched.
+---
 
 ## Troubleshooting
 
-| Symptom | Check |
+| Symptom | Fix |
 |---|---|
-| Skill is not discovered | Confirm `<host-skill-root>/<name>/SKILL.md` resolves to the matching product skill; rerun installer `--check`. |
-| Command says no vault selected | Run from the vault, pass `--vault`, or set `CLAUDE_OBSIDIAN_VAULT`. |
-| Plugin-root refusal | Select a separate user vault; plugin cache writes are unsupported. |
-| Transaction conflict / exit 75 | Another operation is active or a target changed; reread, rebuild, and inspect a new bundle. |
-| Obsidian CLI is unavailable | Use filesystem reads; start/update Obsidian before retrying CLI transport. |
-| Capture adapter is not implemented | Inspect `capture adapters`; configure a separate runner only with explicit consent. |
-| Writes refused with `UNSUPPORTED_PLATFORM` on Windows | Vault mutation requires WSL; see the [Windows and WSL guide](windows-wsl.md). |
-| WSL installed but `wsl --status` hangs | Follow Microsoft's diagnostic and reporting flow in the [Windows and WSL guide](windows-wsl.md#wsl-troubleshooting); do not assume a cause without evidence. |
-| Native dry-run approval fails in WSL with `PLAN_CHANGED` | Approval hashes bind the reviewing environment; redo the dry-run inside WSL ([details](windows-wsl.md#wsl-troubleshooting)). |
+| `no vault markers found` | Pass `--vault <path>`, set `SMART_VAULT_ROOT`, or `cd` into an initialized vault. |
+| Binary signature check fails after copying | Re-sign with `smart-vault sign ~/.local/bin/smart-vault --write-sha256` and re-run `smart-vault verify-binary`. |
+| `BM25 index not found` | Run `smart-vault index --vault <path>` (or rely on auto-build with `smart-vault query`). |
+| `PLAN_CHANGED` / hash mismatch | Re-run `transaction inspect` after any intervening edit to compute a fresh `approved_plan_sha256`. |
+| Windows writes limited | Use WSL for vault mutations; see [Windows and WSL guide](windows-wsl.md). |
 
-Run `make test` in the product repository when developing or packaging changes.
+Made with `<3` from **8b.is-crew**.

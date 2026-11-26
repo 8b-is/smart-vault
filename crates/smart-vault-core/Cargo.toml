@@ -1,6 +1,6 @@
 [package]
 name = "smart-vault-core"
-version = "4.2.0"
+version = "4.3.0"
 edition = "2021"
 rust-version = "1.75"
 authors = ["8b.is-crew <crew@8b.is>"]

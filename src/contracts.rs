@@ -51,6 +51,31 @@ pub fn validate_contracts(repo_root: &Path) -> Result<ValidationReport> {
             }
         };
 
+        if rel == "config/product-contract.json" {
+            for array_key in ["supported_hosts", "installation_modes"] {
+                if let Some(items) = val.get(array_key).and_then(Value::as_array) {
+                    for item in items {
+                        let id = item.get("id").and_then(Value::as_str).unwrap_or("");
+                        if let Some(impls) =
+                            item.get("implementation_paths").and_then(Value::as_array)
+                        {
+                            for p in impls.iter().filter_map(Value::as_str) {
+                                if !repo_root.join(p).exists() {
+                                    findings.push(ValidationFinding {
+                                        code: "missing_implementation_path".to_string(),
+                                        path: rel.to_string(),
+                                        message: format!(
+                                            "{array_key} '{id}' references missing path '{p}'"
+                                        ),
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         if rel == "config/capabilities.json" {
             if let Some(caps) = val.get("capabilities").and_then(Value::as_array) {
                 let mut seen = BTreeSet::new();
@@ -142,7 +167,7 @@ pub fn validate_package(repo_root: &Path) -> Result<ValidationReport> {
             if !fm.present {
                 findings.push(ValidationFinding {
                     code: "missing_frontmatter".to_string(),
-                    path: rel.clone(),
+                    path: rel,
                     message: "SKILL.md missing YAML frontmatter".to_string(),
                 });
                 continue;

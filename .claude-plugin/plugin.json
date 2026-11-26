@@ -1,6 +1,6 @@
 {
   "name": "smart-vault",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "description": "Agent-agnostic, pure-Rust #![no_std]-core second brain for Obsidian wired into 8b-is/smart-tree, MemNet, and MemPalace. Features aarch64 NEON/ASM primitives, CSR graph analytics (Tarjan SCC + PageRank), mimalloc, parallel BM25+ retrieval, crash-safe SHA-256 transactions, codesign binary signing, and stdio MCP server. Made with <3 from 8b.is-crew.",
   "author": {
     "name": "8b.is-crew",

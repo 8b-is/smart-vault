@@ -7,6 +7,23 @@ implementation record for older releases.
 
 ## [Unreleased]
 
+## [4.3.0] - 2026-11-26
+
+### Added, Fixed & Hardened (`rust-pro` + Architecture Review)
+- **`smart-vault-core` CSR & Tarjan Ergonomics**:
+  - Added upfront slice-length assertions and exact-slice zeroing in `build_csr_in_place` so bounds checks inside counting-sort loops optimize away cleanly.
+  - Added `TarjanScratch<'a>` and `tarjan_scc_with_scratch` (keeping `tarjan_scc_iterative` as a wrapper) and updated `src/lint.rs` to allocate and pass explicit reusable scratch state.
+- **BM25+ Retrieval Optimization & Security Hardening (`src/bm25.rs`)**:
+  - Replaced inner-loop `FxHashMap` accumulation with a cache-linear dense `Vec<f64>` accumulator when `doc_count <= 8192 || est_docs * 2 >= doc_count`, paired with `select_nth_unstable_by` before top-`k` sorting.
+  - Hardened live freshness checks by resolving every `doc.path` through `safe_vault_join(vault_root, ...)` so tampered index manifests cannot probe files outside the vault (covered by `query_rejects_path_traversal_index_entry`).
+- **Contract Validation & Diagnostics (`src/contracts.rs`, `src/error.rs`, `src/lib.rs`, `Makefile`)**:
+  - Extended `validate_contracts` to verify all `supported_hosts[].implementation_paths` and `installation_modes[].implementation_paths` in `config/product-contract.json`.
+  - Exported canonical `SmartVaultError` type alias alongside `MemVaultError`.
+  - Eliminated strict `clippy` findings (`map_unwrap_or`, `redundant_clone`) in `bm25.rs`, `contracts.rs`, and `signing.rs`, and promoted `-D clippy::redundant_clone -D clippy::needless_collect -D clippy::map_unwrap_or` into `make lint`.
+- **Documentation & Static Landing Page (`docs/index.html`, `docs/install-guide.md`, `README.md`)**:
+  - Added zero-JS static landing page at `docs/index.html`.
+  - Rewrote `docs/install-guide.md` for pure-Rust `8b-is/smart-vault` workflows (signed release tarballs, source build, `codesign`/`verify-binary`, `setup-global`, `setup-host`, transactional recovery).
+
 ## [4.2.0] - 2026-11-25
 
 Rebuilds the former Python/Bash `claude-obsidian` project into **`smart-vault`** (`8b-is/smart-vault`, short alias `sv`), a 100% pure-Rust, agent-agnostic Obsidian knowledge-graph engine made with `<3` from **8b.is-crew**.

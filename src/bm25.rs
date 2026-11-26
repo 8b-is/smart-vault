@@ -293,9 +293,7 @@ pub fn build_index(vault_root: &Path) -> Result<IndexBuildStats> {
             let fm = parse_frontmatter(&text);
             let rel = to_posix_rel(vault_root, path);
             let title = fm.title.unwrap_or_else(|| {
-                path.file_stem()
-                    .map(|s| s.to_string_lossy().into_owned())
-                    .unwrap_or_else(|| rel.clone())
+                path.file_stem().map_or_else(|| rel.clone(), |s| s.to_string_lossy().into_owned())
             });
             let body = &text[fm.body_start_offset..];
             let snippet = build_snippet(body, 200);
@@ -483,36 +481,83 @@ fn query_loaded_index(
     }
 
     let avg_dl = index.avg_dl.max(1.0);
-    let mut scores: FxHashMap<usize, f64> =
-        FxHashMap::with_capacity_and_hasher(est_docs.min(index.doc_count), Default::default());
+    let mut ranked: Vec<(usize, f64)> = if index.doc_count <= 8192
+        || est_docs.saturating_mul(2) >= index.doc_count
+    {
+        let mut dense = vec![0.0f64; index.doc_count];
+        for (entry, qtf) in matched_terms {
+            let idf_val = idf(index.doc_count, entry.df);
+            let q_weight = f64::from(qtf).min(3.0);
 
-    for (entry, qtf) in matched_terms {
-        let idf_val = idf(index.doc_count, entry.df);
-        let q_weight = f64::from(qtf).min(3.0);
-
-        for posting in &entry.postings {
-            let doc = &index.docs[posting.doc_id];
-            let tf = f64::from(posting.tf);
-            let dl = doc.dl as f64;
-            let bm25 = term_score(idf_val, tf, dl, avg_dl, index.k1, index.b);
-            *scores.entry(posting.doc_id).or_insert(0.0) += bm25 * q_weight;
+            for posting in &entry.postings {
+                let doc = &index.docs[posting.doc_id];
+                let tf = f64::from(posting.tf);
+                let dl = doc.dl as f64;
+                let bm25 = term_score(idf_val, tf, dl, avg_dl, index.k1, index.b);
+                dense[posting.doc_id] += bm25 * q_weight;
+            }
         }
-    }
+        let mut out = Vec::with_capacity(est_docs.min(index.doc_count));
+        for (doc_id, score) in dense.into_iter().enumerate() {
+            if score > 0.0 {
+                out.push((doc_id, score));
+            }
+        }
+        out
+    } else {
+        let mut scores: FxHashMap<usize, f64> =
+            FxHashMap::with_capacity_and_hasher(est_docs.min(index.doc_count), Default::default());
+        for (entry, qtf) in matched_terms {
+            let idf_val = idf(index.doc_count, entry.df);
+            let q_weight = f64::from(qtf).min(3.0);
 
-    let mut ranked: Vec<(usize, f64)> = scores.into_iter().collect();
-    ranked.sort_unstable_by(|a, b| {
+            for posting in &entry.postings {
+                let doc = &index.docs[posting.doc_id];
+                let tf = f64::from(posting.tf);
+                let dl = doc.dl as f64;
+                let bm25 = term_score(idf_val, tf, dl, avg_dl, index.k1, index.b);
+                *scores.entry(posting.doc_id).or_insert(0.0) += bm25 * q_weight;
+            }
+        }
+        scores.into_iter().collect()
+    };
+
+    let cmp = |a: &(usize, f64), b: &(usize, f64)| {
         b.1.partial_cmp(&a.1)
             .unwrap_or(std::cmp::Ordering::Equal)
             .then_with(|| index.docs[a.0].path.cmp(&index.docs[b.0].path))
-    });
+    };
+
+    let pre_sorted = if top_k > 0 && ranked.len() > top_k.saturating_mul(8) {
+        let cutoff = top_k.saturating_mul(4).clamp(32, ranked.len());
+        if cutoff < ranked.len() {
+            ranked.select_nth_unstable_by(cutoff - 1, cmp);
+            ranked[..cutoff].sort_unstable_by(cmp);
+            cutoff
+        } else {
+            ranked.sort_unstable_by(cmp);
+            ranked.len()
+        }
+    } else {
+        ranked.sort_unstable_by(cmp);
+        ranked.len()
+    };
 
     let mut hits = Vec::with_capacity(top_k.min(ranked.len()));
     let mut stale_skipped = 0usize;
-    for (doc_id, score) in ranked {
+    let mut tail_sorted = false;
+    for i in 0..ranked.len() {
+        if i == pre_sorted && !tail_sorted && pre_sorted < ranked.len() {
+            ranked[pre_sorted..].sort_unstable_by(cmp);
+            tail_sorted = true;
+        }
+        let (doc_id, score) = ranked[i];
         let doc = &index.docs[doc_id];
-        let live_path = vault_root.join(&doc.path);
-        let is_stale = match fs::read(&live_path) {
-            Ok(bytes) => sha256_bytes(&bytes) != doc.sha256,
+        let is_stale = match safe_vault_join(vault_root, Path::new(&doc.path)) {
+            Ok(live_path) => match fs::read(&live_path) {
+                Ok(bytes) => sha256_bytes(&bytes) != doc.sha256,
+                Err(_) => true,
+            },
             Err(_) => true,
         };
         if is_stale {
@@ -674,5 +719,38 @@ mod tests {
     fn build_snippet_truncates_without_headings() {
         let s = build_snippet("# Title\n\nhello\n\n## Sub\nworld", 8);
         assert_eq!(s, "hello wo");
+    }
+
+    #[test]
+    fn query_rejects_path_traversal_index_entry() {
+        let dir = tempfile::TempDir::new().unwrap();
+        let meta = dir.path().join(".vault-meta/bm25");
+        fs::create_dir_all(&meta).unwrap();
+        let fake_index = Bm25Index {
+            schema: INDEX_SCHEMA.to_string(),
+            k1: K1,
+            b: B,
+            built_at: "2026-11-26T00:00:00Z".to_string(),
+            doc_count: 1,
+            avg_dl: 3.0,
+            docs: vec![IndexedDoc {
+                path: "../../etc/passwd".to_string(),
+                title: "Escape".to_string(),
+                address: None,
+                sha256: "0".repeat(64),
+                mtime_secs: 0,
+                byte_len: 1,
+                dl: 3,
+                snippet: "escape".to_string(),
+            }],
+            vocab: BTreeMap::from([(
+                "escape".to_string(),
+                VocabEntry { df: 1, postings: vec![Posting { doc_id: 0, tf: 1 }] },
+            )]),
+        };
+        fs::write(meta.join("index.json"), serde_json::to_vec(&fake_index).unwrap()).unwrap();
+        let resp = query_index(dir.path(), "escape", 5, false).unwrap();
+        assert_eq!(resp.stale_skipped, 1);
+        assert!(resp.hits.is_empty());
     }
 }

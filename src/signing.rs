@@ -67,8 +67,7 @@ pub fn sign_binary(
     let sha256_file = if write_sha256 {
         let name = binary_path
             .file_name()
-            .map(|n| n.to_string_lossy().into_owned())
-            .unwrap_or_else(|| "smart-vault".to_string());
+            .map_or_else(|| "smart-vault".to_string(), |n| n.to_string_lossy().into_owned());
         let sidecar = binary_path.with_file_name(format!("{name}.sha256"));
         assert_not_symlink(&sidecar)?;
         let line = format!("{sha256}  {name}\n");

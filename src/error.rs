@@ -77,4 +77,6 @@ impl MemVaultError {
     }
 }
 
+/// Canonical error alias for `smart-vault` alongside [`MemVaultError`].
+pub type SmartVaultError = MemVaultError;
 pub type Result<T> = std::result::Result<T, MemVaultError>;

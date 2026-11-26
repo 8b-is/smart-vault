@@ -19,4 +19,4 @@ pub mod smart_tree;
 pub mod transaction;
 pub mod vault;
 
-pub use error::{MemVaultError, Result};
+pub use error::{MemVaultError, Result, SmartVaultError};

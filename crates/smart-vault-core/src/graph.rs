@@ -33,12 +33,13 @@ pub fn build_csr_in_place<'a>(
     edges: &'a mut [u32],
     in_degrees: &'a mut [u32],
 ) -> CsrGraph<'a> {
-    for v in offsets.iter_mut().take(node_count + 1) {
-        *v = 0;
-    }
-    for v in in_degrees.iter_mut().take(node_count) {
-        *v = 0;
-    }
+    assert!(offsets.len() > node_count, "offsets slice shorter than node_count + 1");
+    assert!(in_degrees.len() >= node_count, "in_degrees slice shorter than node_count");
+
+    let offsets = &mut offsets[..=node_count];
+    let in_degrees = &mut in_degrees[..node_count];
+    offsets.fill(0);
+    in_degrees.fill(0);
 
     for &(u, v) in edge_pairs {
         let ui = u as usize;
@@ -52,10 +53,10 @@ pub fn build_csr_in_place<'a>(
     for i in 1..=node_count {
         offsets[i] += offsets[i - 1];
     }
+    let total_valid = offsets[node_count] as usize;
+    assert!(edges.len() >= total_valid, "edges slice shorter than valid edge count");
 
-    // Track per-node write cursors in `offsets[..node_count]`, then restore via shift or reuse:
-    // Use `offsets[i]` backward pass? Better: `edges` stores pairs, or shift `offsets` in-place:
-    // Save `cursor` by overwriting `offsets[i]` temporarily, then shifting back right!
+    // Temporarily advance `offsets[ui]` as a write cursor, then restore via a 1-slot right shift.
     for &(u, v) in edge_pairs {
         let ui = u as usize;
         let vi = v as usize;
@@ -66,7 +67,6 @@ pub fn build_csr_in_place<'a>(
         }
     }
 
-    // Restore `offsets` by shifting right one slot (since `offsets[ui]` now holds `end` of node `ui`)
     let mut i = node_count;
     while i > 0 {
         offsets[i] = offsets[i - 1];
@@ -74,13 +74,7 @@ pub fn build_csr_in_place<'a>(
     }
     offsets[0] = 0;
 
-    let edge_len = offsets[node_count] as usize;
-    CsrGraph {
-        node_count,
-        offsets: &offsets[..=node_count],
-        edges: &edges[..edge_len],
-        in_degrees: &in_degrees[..node_count],
-    }
+    CsrGraph { node_count, offsets, edges: &edges[..total_valid], in_degrees }
 }
 
 /// Counts nodes with zero incoming links excluding any node whose bit is set in `ignore_bits`.
@@ -153,34 +147,37 @@ pub fn for_each_set_bit(bitset: &[u64], mut f: impl FnMut(usize)) {
     }
 }
 
-/// Iterative, zero-recursion, zero-allocation Tarjan Strongly Connected Components.
-///
-/// Caller buffers must each have length `>= graph.node_count` (and `on_stack_bits` >= `(node_count + 63) / 64`).
-#[allow(clippy::too_many_arguments)]
-pub fn tarjan_scc_iterative(
+/// Caller-owned reusable scratch buffers for iterative Tarjan SCC analysis.
+pub struct TarjanScratch<'a> {
+    pub index: &'a mut [u32],
+    pub lowlink: &'a mut [u32],
+    pub on_stack_bits: &'a mut [u64],
+    pub tarjan_stack: &'a mut [u32],
+    pub call_stack_node: &'a mut [u32],
+    pub call_stack_edge: &'a mut [u32],
+    pub comp_out: &'a mut [u32],
+}
+
+/// Iterative, zero-recursion, zero-allocation Tarjan Strongly Connected Components
+/// using caller-provided [`TarjanScratch`].
+pub fn tarjan_scc_with_scratch(
     graph: &CsrGraph<'_>,
-    index_buf: &mut [u32],
-    lowlink_buf: &mut [u32],
-    on_stack_bits: &mut [u64],
-    tarjan_stack: &mut [u32],
-    call_stack_node: &mut [u32],
-    call_stack_edge: &mut [u32],
-    comp_out: &mut [u32],
+    scratch: &mut TarjanScratch<'_>,
 ) -> SccSummary {
     const UNVISITED: u32 = u32::MAX;
     let n = graph.node_count;
-    for v in index_buf.iter_mut().take(n) {
-        *v = UNVISITED;
-    }
-    for v in lowlink_buf.iter_mut().take(n) {
-        *v = UNVISITED;
-    }
-    for v in comp_out.iter_mut().take(n) {
-        *v = UNVISITED;
-    }
-    for w in on_stack_bits.iter_mut() {
-        *w = 0;
-    }
+    assert!(scratch.index.len() >= n);
+    assert!(scratch.lowlink.len() >= n);
+    assert!(scratch.on_stack_bits.len() >= n.div_ceil(64));
+    assert!(scratch.tarjan_stack.len() >= n);
+    assert!(scratch.call_stack_node.len() >= n);
+    assert!(scratch.call_stack_edge.len() >= n);
+    assert!(scratch.comp_out.len() >= n);
+
+    scratch.index[..n].fill(UNVISITED);
+    scratch.lowlink[..n].fill(UNVISITED);
+    scratch.comp_out[..n].fill(UNVISITED);
+    scratch.on_stack_bits.fill(0);
 
     let mut next_index: u32 = 0;
     let mut t_top: usize = 0;
@@ -189,67 +186,67 @@ pub fn tarjan_scc_iterative(
     let mut largest_scc: usize = 0;
 
     for root in 0..n {
-        if index_buf[root] != UNVISITED {
+        if scratch.index[root] != UNVISITED {
             continue;
         }
 
         let mut c_top: usize = 0;
-        index_buf[root] = next_index;
-        lowlink_buf[root] = next_index;
+        scratch.index[root] = next_index;
+        scratch.lowlink[root] = next_index;
         next_index += 1;
-        set_bit(on_stack_bits, root);
-        tarjan_stack[t_top] = root as u32;
+        set_bit(scratch.on_stack_bits, root);
+        scratch.tarjan_stack[t_top] = root as u32;
         t_top += 1;
 
-        call_stack_node[c_top] = root as u32;
-        call_stack_edge[c_top] = graph.offsets[root];
+        scratch.call_stack_node[c_top] = root as u32;
+        scratch.call_stack_edge[c_top] = graph.offsets[root];
         c_top += 1;
 
         while c_top > 0 {
             let frame = c_top - 1;
-            let u = call_stack_node[frame] as usize;
-            let edge_idx = call_stack_edge[frame] as usize;
+            let u = scratch.call_stack_node[frame] as usize;
+            let edge_idx = scratch.call_stack_edge[frame] as usize;
             let end_idx = graph.offsets[u + 1] as usize;
 
             if edge_idx < end_idx {
-                call_stack_edge[frame] = (edge_idx + 1) as u32;
+                scratch.call_stack_edge[frame] = (edge_idx + 1) as u32;
                 let v = graph.edges[edge_idx] as usize;
                 if v >= n {
                     continue;
                 }
-                if index_buf[v] == UNVISITED {
-                    index_buf[v] = next_index;
-                    lowlink_buf[v] = next_index;
+                if scratch.index[v] == UNVISITED {
+                    scratch.index[v] = next_index;
+                    scratch.lowlink[v] = next_index;
                     next_index += 1;
-                    set_bit(on_stack_bits, v);
-                    tarjan_stack[t_top] = v as u32;
+                    set_bit(scratch.on_stack_bits, v);
+                    scratch.tarjan_stack[t_top] = v as u32;
                     t_top += 1;
 
-                    call_stack_node[c_top] = v as u32;
-                    call_stack_edge[c_top] = graph.offsets[v];
+                    scratch.call_stack_node[c_top] = v as u32;
+                    scratch.call_stack_edge[c_top] = graph.offsets[v];
                     c_top += 1;
-                } else if get_bit(on_stack_bits, v) && index_buf[v] < lowlink_buf[u] {
-                    lowlink_buf[u] = index_buf[v];
+                } else if get_bit(scratch.on_stack_bits, v) && scratch.index[v] < scratch.lowlink[u]
+                {
+                    scratch.lowlink[u] = scratch.index[v];
                 }
             } else {
-                // Returning from node `u`
                 c_top -= 1;
                 if c_top > 0 {
-                    let parent = call_stack_node[c_top - 1] as usize;
-                    if lowlink_buf[u] < lowlink_buf[parent] {
-                        lowlink_buf[parent] = lowlink_buf[u];
+                    let parent = scratch.call_stack_node[c_top - 1] as usize;
+                    if scratch.lowlink[u] < scratch.lowlink[parent] {
+                        scratch.lowlink[parent] = scratch.lowlink[u];
                     }
                 }
 
-                if lowlink_buf[u] == index_buf[u] {
+                if scratch.lowlink[u] == scratch.index[u] {
                     let scc_id = scc_count as u32;
                     let mut size = 0usize;
                     let mut has_self_loop = false;
                     loop {
                         t_top -= 1;
-                        let w = tarjan_stack[t_top] as usize;
-                        clear_bit(on_stack_bits, w);
-                        comp_out[w] = scc_id;
+                        let w = scratch.tarjan_stack[t_top] as usize;
+                        clear_bit(scratch.on_stack_bits, w);
+                        scratch.comp_out[w] = scc_id;
                         size += 1;
                         if size == 1 && w == u {
                             let lo = graph.offsets[u] as usize;
@@ -278,6 +275,30 @@ pub fn tarjan_scc_iterative(
     }
 
     SccSummary { scc_count, cyclic_sccs, largest_scc }
+}
+
+/// Convenience wrapper for [`tarjan_scc_with_scratch`] accepting individual slices.
+#[allow(clippy::too_many_arguments)]
+pub fn tarjan_scc_iterative(
+    graph: &CsrGraph<'_>,
+    index_buf: &mut [u32],
+    lowlink_buf: &mut [u32],
+    on_stack_bits: &mut [u64],
+    tarjan_stack: &mut [u32],
+    call_stack_node: &mut [u32],
+    call_stack_edge: &mut [u32],
+    comp_out: &mut [u32],
+) -> SccSummary {
+    let mut scratch = TarjanScratch {
+        index: index_buf,
+        lowlink: lowlink_buf,
+        on_stack_bits,
+        tarjan_stack,
+        call_stack_node,
+        call_stack_edge,
+        comp_out,
+    };
+    tarjan_scc_with_scratch(graph, &mut scratch)
 }
 
 /// Runs `iters` iterations of ping-pong PageRank in place (`cur` holds final ranks).

@@ -8,7 +8,9 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use rayon::prelude::*;
 use rustc_hash::FxHashMap;
 use serde::{Deserialize, Serialize};
-use smart_vault_core::graph::{build_csr_in_place, pagerank_in_place, tarjan_scc_iterative};
+use smart_vault_core::graph::{
+    build_csr_in_place, pagerank_in_place, tarjan_scc_with_scratch, TarjanScratch,
+};
 use walkdir::WalkDir;
 
 use crate::error::Result;
@@ -175,16 +177,16 @@ pub fn lint_vault(vault_root: &Path) -> Result<LintReport> {
         let mut c_node = vec![0u32; n];
         let mut c_edge = vec![0u32; n];
         let mut comp_out = vec![0u32; n];
-        let scc = tarjan_scc_iterative(
-            &csr,
-            &mut index_buf,
-            &mut low_buf,
-            &mut on_stack,
-            &mut t_stack,
-            &mut c_node,
-            &mut c_edge,
-            &mut comp_out,
-        );
+        let mut scratch = TarjanScratch {
+            index: &mut index_buf,
+            lowlink: &mut low_buf,
+            on_stack_bits: &mut on_stack,
+            tarjan_stack: &mut t_stack,
+            call_stack_node: &mut c_node,
+            call_stack_edge: &mut c_edge,
+            comp_out: &mut comp_out,
+        };
+        let scc = tarjan_scc_with_scratch(&csr, &mut scratch);
 
         let mut pr_cur = vec![0.0f64; n];
         let mut pr_next = vec![0.0f64; n];

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>smart-vault (8b-is/smart-vault) — Pure-Rust #![no_std] + ASM + CSR Obsidian Second Brain</title>
+  <meta name="description" content="Agent-agnostic, 100% pure-Rust Obsidian knowledge-graph engine built on a zero-allocation #![no_std] CSR/NEON core, wired into 8b-is/smart-tree, MemNet MEM|8, and MemPalace." />
+  <style>
+    :root {
+      --bg: #07090f;
+      --surface: #0c101b;
+      --surface-alt: #111827;
+      --border: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --dim: #64748b;
+      --purple: #a78bfa;
+      --green: #34d399;
+      --cyan: #38bdf8;
+      --amber: #f59e0b;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at 20% 0%, #11182c 0%, var(--bg) 55%);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.6;
+    }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+    header.nav {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 1rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border);
+    }
+    .brand {
+      font-family: var(--mono); font-weight: 700; font-size: 1.1rem; letter-spacing: 0.04em;
+      color: var(--text);
+    }
+    .brand span { color: var(--muted); font-weight: 400; font-size: 0.9rem; margin-left: 0.5rem; }
+    nav.links { display: flex; flex-wrap: wrap; gap: 1.25rem; font-size: 0.92rem; }
+    .hero { padding: 3rem 0 2rem; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .pill {
+      font-family: var(--mono); font-size: 0.78rem; padding: 0.28rem 0.65rem;
+      border-radius: 999px; border: 1px solid var(--border); background: var(--surface);
+      color: var(--muted);
+    }
+    .pill.rust { border-color: #7c2d12; color: #fdba74; }
+    .pill.mcp { border-color: #3730a3; color: #c7d2fe; }
+    .pill.tree { border-color: #065f46; color: #6ee7b7; }
+    .pill.mesh { border-color: #0e7490; color: #67e8f9; }
+    .pill.palace { border-color: #92400e; color: #fde68a; }
+    h1 {
+      font-family: var(--mono); font-size: clamp(2rem, 4.5vw, 3.1rem);
+      line-height: 1.15; margin: 0 0 1rem; letter-spacing: -0.02em;
+    }
+    .lead { max-width: 780px; font-size: 1.12rem; color: var(--muted); margin: 0 0 1.75rem; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 0.85rem; }
+    .btn {
+      display: inline-block; font-family: var(--mono); font-size: 0.9rem; font-weight: 600;
+      padding: 0.72rem 1.2rem; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface-alt); color: var(--text);
+    }
+    .btn.primary {
+      background: linear-gradient(135deg, #4f46e5, #0891b2);
+      border-color: transparent; color: #fff;
+    }
+    .btn:hover { text-decoration: none; filter: brightness(1.08); }
+    section { margin-top: 3rem; }
+    h2 {
+      font-family: var(--mono); font-size: 1.3rem; margin: 0 0 1rem;
+      padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+    }
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem;
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.15rem;
+    }
+    .card.l0 { border-top: 3px solid var(--purple); }
+    .card.l1 { border-top: 3px solid #818cf8; }
+    .card.l2 { border-top: 3px solid var(--green); }
+    .card.l3 { border-top: 3px solid var(--cyan); }
+    .card.l4 { border-top: 3px solid var(--amber); }
+    .card h3 { font-family: var(--mono); font-size: 0.98rem; margin: 0 0 0.45rem; }
+    .card p { margin: 0; font-size: 0.92rem; color: var(--muted); }
+    pre {
+      background: #05070c; border: 1px solid var(--border); border-radius: 10px;
+      padding: 1rem 1.15rem; overflow-x: auto; font-family: var(--mono);
+      font-size: 0.86rem; line-height: 1.5; color: #e2e8f0; margin: 0.75rem 0 0;
+    }
+    .bench-row {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem;
+    }
+    .metric {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem;
+    }
+    .metric .val { font-family: var(--mono); font-size: 1.6rem; font-weight: 700; color: var(--green); }
+    .metric .lbl { font-family: var(--mono); font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; }
+    table {
+      width: 100%; border-collapse: collapse; margin-top: 0.75rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      overflow: hidden; font-size: 0.9rem;
+    }
+    th, td { padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--border); text-align: left; }
+    th { font-family: var(--mono); font-size: 0.82rem; color: var(--muted); background: #0a0e18; }
+    code { font-family: var(--mono); font-size: 0.88em; color: #cbd5e1; }
+    footer {
+      margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem;
+      color: var(--dim); font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="nav">
+      <div class="brand">smart-vault <span>(sv) · 8b-is/smart-vault</span></div>
+      <nav class="links">
+        <a href="install-guide.md">Install Guide</a>
+        <a href="m1-antigravity-mempalace-guide.md">M1 Global Setup</a>
+        <a href="https://github.com/8b-is/smart-vault/releases">Releases</a>
+        <a href="https://github.com/8b-is/smart-vault">GitHub</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="pill-row">
+        <span class="pill rust">100% Pure Rust · #![no_std] Core</span>
+        <span class="pill mcp">15 MCP Tools · Agent-Agnostic</span>
+        <span class="pill tree">Smart Tree (st)</span>
+        <span class="pill mesh">MemNet MEM|8 Mesh</span>
+        <span class="pill palace">MemPalace</span>
+      </div>
+      <h1>Sovereign, local-first knowledge graph engine for Obsidian.</h1>
+      <p class="lead">
+        Built on a zero-allocation <code>#![no_std]</code> CSR graph &amp; <code>aarch64</code> NEON/ASM core,
+        <code>mimalloc</code>, <code>rayon</code> BM25+ retrieval, and crash-safe SHA-256 transactions — wired natively into
+        <a href="https://github.com/8b-is/smart-tree">8b-is/smart-tree</a>, <code>MemNet</code>, and <code>MemPalace</code>.
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="https://github.com/8b-is/smart-vault/releases">Download v4.3.0 Release</a>
+        <a class="btn" href="install-guide.md">Read Pure-Rust Install Guide</a>
+        <a class="btn" href="https://github.com/8b-is/smart-vault">Inspect Source on GitHub</a>
+      </div>
+    </section>
+
+    <section>
+      <h2>Steno-Ontological Architecture</h2>
+      <div class="grid">
+        <div class="card l0">
+          <h3>L0 · smart-vault-core (#![no_std])</h3>
+          <p>Zero heap allocations and zero dependencies: CSR graph construction, iterative Tarjan SCC, PageRank hubs, NEON 16-byte SIMD lowercasing, <code>rbit/clz</code> bitsets, constant-time <code>ct_eq_bytes</code>, IEEE-754 BM25+, and stack <code>TopK</code>.</p>
+        </div>
+        <div class="card l1">
+          <h3>L1 · Obsidian Vault Engine</h3>
+          <p>Parallel <code>rayon</code> scanner, dense/sparse BM25+ retrieval with vault-jailed live SHA-256 freshness verification, immutable <code>.raw/</code> intake, and <code>fs2</code>-locked SHA-256 approval-pinned transactions.</p>
+        </div>
+        <div class="card l2">
+          <h3>L2 · 8b-is/smart-tree (st)</h3>
+          <p>AI-compressed structural trees (<code>--mode ai|classic|quantum|json</code>) and salient <code>.vault-meta/vault.m8</code> wave checkpoints with automatic pure-Rust fallback when <code>st</code> is absent.</p>
+        </div>
+        <div class="card l3">
+          <h3>L3 · MemNet Mesh (MEM|8)</h3>
+          <p>Zero-hop wave Q&amp;A cache offloading (<code>mesh ask</code> / <code>teach</code>), peer route telemetry, and bounded folder sharing across LAN/local nodes.</p>
+        </div>
+        <div class="card l4">
+          <h3>L4 · MemPalace</h3>
+          <p>Verbatim spatial Wings, Rooms, and Drawers bridged via <code>palace status</code>, <code>wake-up</code>, <code>search</code>, <code>mine</code>, <code>daemon</code>, and lifecycle hook forwarding.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Quick Start &amp; M1 Global Install</h2>
+      <pre># Install from source cleanly
+cargo install --git https://github.com/8b-is/smart-vault
+
+# Preview and apply global M1 setup (~/.local/bin/smart-vault + sv symlink, signed via codesign + .sha256,
+# Antigravity IDE/CLI ~/.gemini MCP + hooks, and skill linking)
+smart-vault setup-global
+smart-vault setup-global --apply
+
+# Verify binary signature &amp; SHA-256 in constant time
+smart-vault verify-binary ~/.local/bin/smart-vault --sha256 "$(awk '{print $1}' ~/.local/bin/smart-vault.sha256)"</pre>
+    </section>
+
+    <section>
+      <h2>Verified Criterion Benchmarks (Apple M1 64 GB · 200-Page Vault)</h2>
+      <div class="bench-row">
+        <div class="metric">
+          <div class="val">3.35 ms</div>
+          <div class="lbl">lint_200_pages (CSR + Tarjan SCC + PageRank + Wikilinks)</div>
+        </div>
+        <div class="metric">
+          <div class="val">10.30 ms</div>
+          <div class="lbl">bm25_index_200_pages (rayon + Unicode NFD + CJK n-grams)</div>
+        </div>
+        <div class="metric">
+          <div class="val">776.29 µs</div>
+          <div class="lbl">bm25_query_200_pages (dense accumulator + live SHA-256 verify)</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>15-Tool Stdio MCP Server</h2>
+      <table>
+        <thead>
+          <tr><th>Surface</th><th>Tools</th><th>Host Compatibility</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Vault Core (7)</strong></td>
+            <td><code>vault_doctor</code>, <code>vault_scan</code>, <code>vault_tree</code>, <code>vault_lint</code>, <code>vault_index</code>, <code>vault_query</code>, <code>vault_remember</code></td>
+            <td>Antigravity IDE &amp; CLI, Codex, Claude Code, Gemini, OpenCode, Cursor, Windsurf, ZCode</td>
+          </tr>
+          <tr>
+            <td><strong>MemNet Mesh (4)</strong></td>
+            <td><code>mesh_status</code>, <code>mesh_ask</code>, <code>mesh_teach</code>, <code>mesh_share</code></td>
+            <td>All stdio JSON-RPC 2.0 MCP clients</td>
+          </tr>
+          <tr>
+            <td><strong>MemPalace (4)</strong></td>
+            <td><code>palace_status</code>, <code>palace_wake_up</code>, <code>palace_search</code>, <code>palace_mine</code></td>
+            <td>All stdio JSON-RPC 2.0 MCP clients</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      <div>Made with &lt;3 from <strong>8b.is-crew</strong> · Evolved from <a href="https://github.com/AgriciDaniel/claude-obsidian">AgriciDaniel/claude-obsidian</a> (MIT)</div>
+      <div>Licensed under the <a href="https://github.com/8b-is/smart-vault/blob/main/LICENSE">MIT License</a></div>
+    </footer>
+  </div>
+</body>
+</html>

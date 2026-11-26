@@ -10,13 +10,13 @@
     {
       "mode": "0644",
       "path": ".claude-plugin/marketplace.json",
-      "sha256": "20784ced3bcdb3281c6e10c9de151b028529a7c3f4a8286a5b9bc7a73f5d5d0b",
+      "sha256": "be52652191abbdcb24215cdce34ac088adf611c4bededd4ef92f69b0d0443e90",
       "size": 820
     },
     {
       "mode": "0644",
       "path": ".claude-plugin/plugin.json",
-      "sha256": "48c78e4547324dc351d2d7a64e856c3302832122ca072c3a36df544fda12b7f8",
+      "sha256": "18a06f6b1eda073ba84c9ceef11e81cab34b6f4fe2ecf4ac1d68a7abb934dfab",
       "size": 840
     },
     {
@@ -106,13 +106,13 @@
     {
       "mode": "0644",
       "path": "CHANGELOG.md",
-      "sha256": "f4074057132d8945f5309f5481d39cd26ddaccca1354ac7c82adabeba084bbd1",
-      "size": 37617
+      "sha256": "9df931a162a371b7b30a38fd143a18ec0eedea28a21c0e2ad02b0dae49fa1644",
+      "size": 39573
     },
     {
       "mode": "0644",
       "path": "CITATION.cff",
-      "sha256": "97e0f9a58348066b8429fe9857c494d043e9305d0d3fc6e6f2ca5f7b3fcfa027",
+      "sha256": "b37656d2c3c5b8ca49c79c4330fb5c48e046d0721625227aa88e79e24c971196",
       "size": 514
     },
     {
@@ -136,13 +136,13 @@
     {
       "mode": "0644",
       "path": "Cargo.lock",
-      "sha256": "69372ee35f70898b08622311ff2cc6277bc674017886eba115fcab0d48767dc6",
+      "sha256": "8c69c2fce5dfa0af8659a9491cd04a7075abdfed0fddd3fbdf5c10c39dd39233",
       "size": 28346
     },
     {
       "mode": "0644",
       "path": "Cargo.toml",
-      "sha256": "100c7a71e2b225a53c4af9141ba66092b3a6f258f68f9b36b6620a45b352f8a1",
+      "sha256": "4c50036c7486e5e50fd6136752ae9aa8bbf7b3ad11677a73f6a5d49cdbcc01e1",
       "size": 1491
     },
     {
@@ -160,8 +160,8 @@
     {
       "mode": "0644",
       "path": "Makefile",
-      "sha256": "a2e618d07ffd10f089f434d69d1ad28f04a0b654b48e61ba8132adcc9a046661",
-      "size": 1712
+      "sha256": "de7e8037875c743b6455f34ace7ed8973f0c9c01daa09ae739251613d2a2670b",
+      "size": 1792
     },
     {
       "mode": "0644",
@@ -172,8 +172,8 @@
     {
       "mode": "0644",
       "path": "README.md",
-      "sha256": "fd9e5a1245a255a92db8068b40364df52ca3b3c46521d01a250d11b05cd61fe1",
-      "size": 12057
+      "sha256": "876a55ea62abbfbbc1e10edf84067c4fd24587d9b1505db7b7353ec23e49d433",
+      "size": 12623
     },
     {
       "mode": "0644",
@@ -340,7 +340,7 @@
     {
       "mode": "0644",
       "path": "config/public-marketplace.json",
-      "sha256": "20784ced3bcdb3281c6e10c9de151b028529a7c3f4a8286a5b9bc7a73f5d5d0b",
+      "sha256": "be52652191abbdcb24215cdce34ac088adf611c4bededd4ef92f69b0d0443e90",
       "size": 820
     },
     {
@@ -358,7 +358,7 @@
     {
       "mode": "0644",
       "path": "crates/smart-vault-core/Cargo.toml",
-      "sha256": "14ae67f637174450897b717cccc50d19daaebf608278a39b274530dc56ef6509",
+      "sha256": "5c868b02f38b9f75429ad2cf0f390ccf70a01cd08fd2fe97c24af4b1dcb4df53",
       "size": 419
     },
     {
@@ -376,8 +376,8 @@
     {
       "mode": "0644",
       "path": "crates/smart-vault-core/src/graph.rs",
-      "sha256": "6062d8d04dfcd617900b4edc1cd675b685a3b1d9bf84ace960399703ff0557b7",
-      "size": 10779
+      "sha256": "cba49d24fc0ac222141774052ac03cb698fae7ecda7c2d3f6214467def927dd5",
+      "size": 11780
     },
     {
       "mode": "0644",
@@ -411,9 +411,15 @@
     },
     {
       "mode": "0644",
+      "path": "docs/index.html",
+      "sha256": "fa89bbf7f89ca5d13b5320d47cb1c529134435057c3f402120727089a149f8d7",
+      "size": 11660
+    },
+    {
+      "mode": "0644",
       "path": "docs/install-guide.md",
-      "sha256": "5165f52408bf093eac7658487733fbee8ceac2251e4609f35b377c3077caa653",
-      "size": 11408
+      "sha256": "09adf7c76b8a15804fdbd11fafffcf8301d45fec778cdd5cc291560b135d10ef",
+      "size": 6784
     },
     {
       "mode": "0644",
@@ -802,8 +808,8 @@
     {
       "mode": "0644",
       "path": "src/bm25.rs",
-      "sha256": "554bf05fb50e9890d78bbf0fd557fe7c85e5efa99045626f175c26901de32c49",
-      "size": 20292
+      "sha256": "d99fa1e2f9f8f77cb89028df6427c9215ef7c42162083e01125ea201225ec044",
+      "size": 23291
     },
     {
       "mode": "0644",
@@ -820,14 +826,14 @@
     {
       "mode": "0644",
       "path": "src/contracts.rs",
-      "sha256": "a60ec5de564bd8dec22cac4dd068229b5717d71ab8fc0a5312240712de13f83d",
-      "size": 6263
+      "sha256": "e3a230cfd660d491d611a381d2fb58a4dbf35d07c8c8463ccbfaf5e93d213a0e",
+      "size": 7504
     },
     {
       "mode": "0644",
       "path": "src/error.rs",
-      "sha256": "978afa86f0f218a102b6c3c07a3ee5a93d1f8280e3b5f687dfd97b644ef25848",
-      "size": 2484
+      "sha256": "55b8744131051f011e2a4153e814c2451497c456d4dcba8d71cdeb8f2c657898",
+      "size": 2599
     },
     {
       "mode": "0644",
@@ -838,14 +844,14 @@
     {
       "mode": "0644",
       "path": "src/lib.rs",
-      "sha256": "7643eb3a6f45ea64e7fec5c02dddc8798cc18c1d8af02efa8682d6a730c9e909",
-      "size": 485
+      "sha256": "0ea50f381db925167a5896321c0d32fd8de7510d9a8ccff0cf636babf5df74d5",
+      "size": 502
     },
     {
       "mode": "0644",
       "path": "src/lint.rs",
-      "sha256": "62785dea5815cd4293378378671ce0c4097cc5abeccf90fef54d99918f21ba1f",
-      "size": 20522
+      "sha256": "3189e348391a9bdcc8e5dfb451072ce91875f2e3336b2b25e8cf440283f9aab9",
+      "size": 20683
     },
     {
       "mode": "0644",
@@ -892,8 +898,8 @@
     {
       "mode": "0644",
       "path": "src/signing.rs",
-      "sha256": "82c40c200f00c2b332acd8dc172aa068fc33eb0efffd287567583671740f4918",
-      "size": 6399
+      "sha256": "cd038b5b72fc9d18bb590107736d29471955c68f5c404f221b92928d6c5c05d6",
+      "size": 6379
     },
     {
       "mode": "0644",
@@ -1235,7 +1241,7 @@
     }
   },
   "schema_version": 1,
-  "source_commit": "e8f4cdd90bdad758180874736f9cdb4e827f0764",
-  "source_date_epoch": 1795637375,
-  "version": "4.2.0"
+  "source_commit": "d964baf7ad094b5619e605d3186fe54aacfec03d",
+  "source_date_epoch": 1795709826,
+  "version": "4.3.0"
 }

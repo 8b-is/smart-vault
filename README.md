@@ -5,6 +5,7 @@
 <p align="center">
   <a href="Cargo.toml"><img src="https://img.shields.io/badge/Rust-100%25_Pure_Rust_%23!%5Bno__std%5D_Core-orange?logo=rust" alt="Pure Rust #![no_std] Core" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue" alt="MIT License" /></a>
+  <a href="https://github.com/8b-is/smart-vault/releases"><img src="https://img.shields.io/badge/Release-v4.3.0-7C3AED" alt="v4.3.0 Release" /></a>
   <a href="#agent-agnostic-mcp-server-15-tools"><img src="https://img.shields.io/badge/MCP-15_Tools-6366F1" alt="MCP 15 Tools" /></a>
   <a href="https://github.com/8b-is/smart-tree"><img src="https://img.shields.io/badge/Smart_Tree-st-10B981" alt="Smart Tree st" /></a>
   <a href="https://github.com/8b-is/smart-tree"><img src="https://img.shields.io/badge/MemNet-MEM%7C8-06B6D4" alt="MemNet MEM|8" /></a>
@@ -15,7 +16,7 @@
 <p align="center">
   <b>Sovereign, agent-agnostic second brain for <a href="https://obsidian.md">Obsidian</a> — zero-alloc <code>#![no_std]</code> graph/ASM core wired into <a href="https://github.com/8b-is/smart-tree">8b-is/smart-tree</a> (<code>st</code>), <code>MemNet</code> (<code>MEM|8</code>), and <code>MemPalace</code>.</b><br />
   Drop in raw sources. Maintain a cited, CSR-analyzed, NEON/ASM-accelerated, SHA-256 crash-safe Markdown knowledge graph across every AI host.<br />
-  <sub>Made with &lt;3 from <b>8b.is-crew</b> · Evolved from <a href="https://github.com/AgriciDaniel/claude-obsidian">AgriciDaniel/claude-obsidian</a> (MIT)</sub>
+  <sub>Repository: <a href="https://github.com/8b-is/smart-vault">8b-is/smart-vault</a> · <a href="docs/index.html">Landing Page</a> · <a href="docs/install-guide.md">Install Guide</a> · Made with &lt;3 from <b>8b.is-crew</b></sub>
 </p>
 
 ---
@@ -45,7 +46,7 @@ flowchart LR
 | Layer / Entity | Canonical Representation | Engine / Binary | Invariant | Observed Capabilities & Architecture |
 |---|---|---|---|---|
 | **L0 · `#![no_std]` Kernel** | `CsrGraph`, bitsets, stack `TopK`, slice scanners | [`smart-vault-core`](crates/smart-vault-core/Cargo.toml) (`asm.rs`, `graph.rs`, `scan.rs`, `bm25_math.rs`) | Zero heap allocation, zero dependencies (`no_std`), pure IEEE-754 math | `aarch64` NEON 16B `simd_ascii_lowercase_in_place` & `simd_contains_byte`, `rbit`/`clz` `ctz_u64`, barrier `ct_eq_bytes`, iterative Tarjan SCC & PageRank |
-| **L1 · Obsidian Vault** | `wiki/**/*.md`, `.raw/` payloads, `.smart-vault.json`, `.vault-meta/` | `smart-vault` (`src/vault.rs`, `src/lint.rs`, `src/bm25.rs`, `src/transaction.rs`) | `.raw/` is create-only; mutations require `fs2` lock, SHA-256 plan approval & pre-image journal | Parallel CSR graph lint + cyclic SCC/hub detection, `rayon` BM25+ index/query, `mimalloc` allocator, `Wl,-dead_strip` + fat LTO |
+| **L1 · Obsidian Vault** | `wiki/**/*.md`, `.raw/` payloads, `.smart-vault.json`, `.vault-meta/` | `smart-vault` (`src/vault.rs`, `src/lint.rs`, `src/bm25.rs`, `src/transaction.rs`) | `.raw/` is create-only; mutations require `fs2` lock, SHA-256 plan approval & pre-image journal | `3.35 ms` 200-page CSR lint · `10.30 ms` 200-page BM25+ index · `776.29 µs` 200-page query · `1.6 MiB` signed binary |
 | **L2 · Smart Tree** | AI-compressed trees (<code>--mode ai&#124;classic&#124;quantum&#124;json</code>) & `.vault-meta/vault.m8` waves | `st` (`8b-is/smart-tree`) + Rust `WalkDir`/`rayon` fallback (`src/smart_tree.rs`) | Read-only structural probes (`--no-update-check`); automatic Rust fallback when `st` is absent | Native compiled `st` binary with built-in parallel Rust fallback |
 | **L3 · MemNet Mesh** | <code>MEM&#124;8</code> wave Q&A packets (`ask` / `teach`), live `routes`, shared folder quotas | `st memnet` bridged via `src/memnet.rs` | Bounded subprocess timeouts (`5 s` mesh ops, `1.5 s` hybrid `--mesh` check); non-blocking fallback to BM25+ | Checked ahead of/alongside local BM25+ with `1.5 s` hybrid timeout |
 | **L4 · MemPalace** | Verbatim Wings / Rooms / Drawers (`~/.config/mempalace/palace`, ChromaDB + HNSW + SQLite) | `mempalace` / `mempalace-mcp` / `mempalace daemon` (`src/mempalace.rs`) | Fast read-only `repair-status` default (`--full` opt-in); bounded timeouts (`10 s` fast / `45 s` heavy / `5 s` hook) | Warm `mempalace daemon` avoids cold ChromaDB/HNSW reload across `1.56M+` drawers |
@@ -57,9 +58,11 @@ flowchart LR
 
 ### Build, Sign & Install
 
+See the [Install Guide](docs/install-guide.md) (source build or signed [GitHub Release tarballs](https://github.com/8b-is/smart-vault/releases)) and the static [Landing Page](docs/index.html):
+
 ```bash
 cargo build --release
-cargo install --path .
+cargo install --path . --locked
 ```
 
 ### Automated M1 64 GB Global Setup (Antigravity IDE + CLI + MemPalace)
@@ -158,6 +161,7 @@ smart-vault setup-host --host cursor --workspace /path/to/project --apply
 ## Contracts, Security & Verification
 
 - Agent contract & vault boundaries: [AGENTS.md](AGENTS.md)
+- Install & deployment guide: [docs/install-guide.md](docs/install-guide.md) · [Landing Page](docs/index.html)
 - Vault schema & frontmatter contract: [WIKI.md](WIKI.md)
 - Privacy & security invariants: [PRIVACY.md](PRIVACY.md) · [SECURITY.md](SECURITY.md)
 - Contributing guidelines: [CONTRIBUTING.md](CONTRIBUTING.md)
@@ -165,11 +169,11 @@ smart-vault setup-host --host cursor --workspace /path/to/project --apply
 ```bash
 make fmt          # cargo fmt --all --check
 make check-nostd  # cargo check -p smart-vault-core --no-default-features
-make lint         # cargo clippy --workspace --all-targets -- -D warnings -D dead_code -D unused_imports
+make lint         # strict workspace clippy (-D warnings -D dead_code -D unused_imports -D redundant_clone -D map_unwrap_or)
 make test         # cargo test --workspace + contracts + package validate
 make release      # cargo build --release (fat LTO, target-cpu=native, stripped)
 make sign         # release + macOS codesign + .sha256 sidecar
-make bench        # Criterion microbenchmarks (benches/vault_bench.rs)
+make bench        # Criterion microbenchmarks (benches/vault_bench.rs, fat LTO + mimalloc)
 ```
 
 ---
